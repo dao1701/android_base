@@ -42,12 +42,12 @@ func _ready():
         #get_tree().change_scene_to_file("res://src/main.tscn")
         #return
     var version     = self.load_data()
-    var path_pck    = "user://patch.pck"
+    var path_pck    = "user://project.pck"
     var new_version = await get_new_version()
     if version != new_version:
         prints("No Patch")
         save(new_version)
-        download("https://gitlab.com/tvdlhp10tin/test/-/raw/main/patch.pck", path_pck)
+        download("https://github.com/dao1701/android_base/releases/latest/download/project.pck", path_pck)
         var code = await load_finished
         var file = FileAccess.open(path_pck, FileAccess.READ)
         if file == null:
