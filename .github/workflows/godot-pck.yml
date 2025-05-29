@@ -1,5 +1,8 @@
 name: Godot PCK Build
 
+env:
+  GODOT_VERSION: 4.4.1-stable
+
 on:
   push:
     branches: [ main ]
@@ -15,13 +18,13 @@ jobs:
 
     - name: Download Godot
       run: |
-        wget https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
-        unzip Godot_v4.4.1-stable_linux.x86_64.zip
-        chmod +x Godot_v4.4.1-stable_linux.x86_64
+        wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+        unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+        chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
 
     - name: Create PCK file
       run: |
-        ./Godot_v4.4.1-stable_linux.x86_64 --export-pack Android project.pck . --headless
+        ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
     - name: Upload PCK file
       uses: actions/upload-artifact@v4
       with:
