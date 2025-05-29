@@ -63,7 +63,7 @@ func _ready():
 
 
 func get_new_version():
-    download("https://github.com/dao1701/android_base/releases/latest/download/version.txt", "user://patch.dat")
+    download("https://github.com/dao1701/android_base/releases/latest/download/version.json", "user://patch.dat")
     await load_finished
     var string  = self.load_data("user://patch.dat")
     var version = JSON.parse_string(string)["commit"]
