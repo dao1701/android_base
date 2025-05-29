@@ -1,3 +1,4 @@
+@tool
 extends Node
 
 signal load_finished(result: int)
@@ -37,7 +38,7 @@ func load_data(path = "user://save_game.dat" ) -> String:
 
 func _ready():
     #load new version
-    if !Engine.is_editor_hint():
+    if OS.has_feature("editor"):
         await get_tree().create_timer(0.1).timeout
         get_tree().change_scene_to_file("res://src/main.tscn")
         return
