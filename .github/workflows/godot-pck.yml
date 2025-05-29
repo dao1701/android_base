@@ -21,7 +21,7 @@ jobs:
 
     - name: Create PCK file
       run: |
-        ./Godot_v4.4.1-stable_linux.x86_64 --export-pack project.pck . --headless
+        ./Godot_v4.4.1-stable_linux.x86_64 --export-pack Android project.pck . --headless
     - name: Upload PCK file
       uses: actions/upload-artifact@v4
       with:
