@@ -37,10 +37,10 @@ func load_data(path = "user://save_game.dat" ) -> String:
 
 func _ready():
     #load new version
-    #if OS.get_name() == "Windows":
-        #await get_tree().create_timer(0.1).timeout
-        #get_tree().change_scene_to_file("res://src/main.tscn")
-        #return
+    if !Engine.is_editor_hint():
+        await get_tree().create_timer(0.1).timeout
+        get_tree().change_scene_to_file("res://src/main.tscn")
+        return
     var version     = self.load_data()
     var path_pck    = "user://project.pck"
     var new_version = await get_new_version()
@@ -67,5 +67,5 @@ func get_new_version():
     await load_finished
     var string  = self.load_data("user://patch.dat")
     var version = JSON.parse_string(string)["commit"]
-    prints("New ", version)
+    prints("Remote ", version)
     return version

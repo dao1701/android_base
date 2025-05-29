@@ -26,59 +26,6 @@ label_settings = SubResource("LabelSettings_0ga73")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Label4" type="Label" parent="Label4"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 101.0
-offset_top = -298.5
-offset_right = 229.0
-offset_bottom = -243.5
-grow_horizontal = 2
-grow_vertical = 2
-text = "OK"
-label_settings = SubResource("LabelSettings_0ga73")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label4" type="Label" parent="Label4/Label4"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 583.0
-offset_top = 212.5
-offset_right = 711.0
-offset_bottom = 267.5
-grow_horizontal = 2
-grow_vertical = 2
-text = "OK"
-label_settings = SubResource("LabelSettings_0ga73")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label5" type="Label" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -23.0
-offset_top = 191.0
-offset_right = 105.0
-offset_bottom = 246.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "OK"
-label_settings = SubResource("LabelSettings_0ga73")
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="Panel" type="Panel" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
@@ -126,8 +73,8 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ColorRect" type="ColorRect" parent="."]
-offset_left = 605.0
-offset_top = 76.0
-offset_right = 836.0
-offset_bottom = 129.0
+offset_left = 549.0
+offset_top = 428.0
+offset_right = 780.0
+offset_bottom = 481.0
 color = Color(1, 0.258824, 1, 1)
