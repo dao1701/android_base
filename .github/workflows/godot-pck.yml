@@ -52,6 +52,12 @@ jobs:
         run: |
           TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          # Create version info file
+          echo "Release: $TAG_NAME" > version.txt
+          echo "Commit: ${{ github.sha }}" >> version.txt
+          echo "Build Date: $(date +'%Y-%m-%d %H:%M:%S')" >> version.txt
+          echo "Branch: ${{ github.ref_name }}" >> version.txt
+          echo "Last Commit Message: $(git log -1 --pretty=%B)" >> version.txt
 
       - name: Create Git tag
         run: |
@@ -63,6 +69,8 @@ jobs:
         with:
           tag_name: ${{ steps.vars.outputs.tag_name }}
           name: Release ${{ steps.vars.outputs.tag_name }}
-          files: project.pck
+          files: |
+            project.pck
+            version.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
