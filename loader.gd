@@ -37,10 +37,10 @@ func load_data(path = "user://save_game.dat" ) -> String:
 
 func _ready():
     #load new version
-    if OS.get_name() == "Windows":
-        await get_tree().create_timer(0.1).timeout
-        get_tree().change_scene_to_file("res://src/main.tscn")
-        return
+    #if OS.get_name() == "Windows":
+        #await get_tree().create_timer(0.1).timeout
+        #get_tree().change_scene_to_file("res://src/main.tscn")
+        #return
     var version     = self.load_data()
     var path_pck    = "user://patch.pck"
     var new_version = await get_new_version()
@@ -63,9 +63,9 @@ func _ready():
 
 
 func get_new_version():
-    download("https://gitlab.com/api/v4/projects/52931934/repository/branches/main", "user://patch.dat")
+    download("https://github.com/dao1701/android_base/releases/latest/download/version.txt", "user://patch.dat")
     await load_finished
     var string  = self.load_data("user://patch.dat")
-    var version = JSON.parse_string(string)["commit"]["short_id"]
+    var version = JSON.parse_string(string)["commit"]
     prints("New ", version)
     return version
