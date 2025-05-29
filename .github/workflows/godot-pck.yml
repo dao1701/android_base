@@ -27,3 +27,38 @@ jobs:
       with:
         name: project-pck
         path: project.pck
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download PCK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: project-pck
+
+      - name: Set up Git
+        run: |
+          git fetch --tags
+
+      - name: Get version/tag
+        id: vars
+        run: |
+          TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Git tag
+        run: |
+          git tag ${{ steps.vars.outputs.tag_name }}
+          git push origin ${{ steps.vars.outputs.tag_name }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag_name }}
+          name: Release ${{ steps.vars.outputs.tag_name }}
+          files: project.pck
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
