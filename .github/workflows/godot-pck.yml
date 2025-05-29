@@ -24,7 +24,7 @@ jobs:
         ./Godot_v4.4.1-stable_linux.x86_64 --export-pack project.pck .
 
     - name: Upload PCK file
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: project-pck
         path: project.pck
