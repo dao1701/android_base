@@ -1,0 +1,35 @@
+[remap]
+
+importer="font_data_dynamic"
+type="FontFile"
+uid="uid://2ahhtrqxjckl"
+path="res://.godot/imported/Futurino Outline Bold.otf-ce9ab7c938094117c20a5f71ca9565f6.fontdata"
+
+[deps]
+
+source_file="res://font/Futurino Outline Bold.otf"
+dest_files=["res://.godot/imported/Futurino Outline Bold.otf-ce9ab7c938094117c20a5f71ca9565f6.fontdata"]
+
+[params]
+
+Rendering=null
+antialiasing=1
+generate_mipmaps=false
+disable_embedded_bitmaps=true
+multichannel_signed_distance_field=false
+msdf_pixel_range=8
+msdf_size=48
+allow_system_fallback=true
+force_autohinter=false
+hinting=1
+subpixel_positioning=1
+keep_rounding_remainders=true
+oversampling=0.0
+Fallbacks=null
+fallbacks=[]
+Compress=null
+compress=true
+preload=[]
+language_support={}
+script_support={}
+opentype_features={}

@@ -1,0 +1,92 @@
+[gd_scene load_steps=7 format=3 uid="uid://ornug1t46sly"]
+
+[ext_resource type="Script" uid="uid://decwgpfodnxwl" path="res://src/pop_up_quit.gd" id="1_vg68b"]
+[ext_resource type="Texture2D" uid="uid://cnv2abdrn3px6" path="res://asset/settings/bg.png" id="2_ynyf2"]
+[ext_resource type="FontFile" uid="uid://d4f3ng7kd5ipv" path="res://font/Futurino Bold.otf" id="3_tx7im"]
+[ext_resource type="Texture2D" uid="uid://c7vqok48vx1ve" path="res://asset/btn/close.png" id="4_74lfv"]
+[ext_resource type="Texture2D" uid="uid://dqhgf0n1t6ykg" path="res://asset/btn/ok.png" id="5_uujrx"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_owxws"]
+font = ExtResource("3_tx7im")
+font_size = 50
+
+[node name="PopUpQuit" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_vg68b")
+
+[node name="Bg" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -351.5
+offset_top = -236.5
+offset_right = 351.5
+offset_bottom = 236.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_ynyf2")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Bg"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -91.0
+offset_top = 95.0
+offset_right = 91.0
+offset_bottom = 195.0
+grow_horizontal = 2
+text = "Thoát game"
+label_settings = SubResource("LabelSettings_owxws")
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="Close" type="TextureButton" parent="Bg"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 76.0
+offset_top = -214.5
+offset_right = 166.0
+offset_bottom = -124.5
+grow_horizontal = 2
+grow_vertical = 0
+texture_normal = ExtResource("4_74lfv")
+texture_pressed = ExtResource("4_74lfv")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="OK" type="TextureButton" parent="Bg"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -179.0
+offset_top = -214.5
+offset_right = -89.0
+offset_bottom = -124.5
+grow_horizontal = 2
+grow_vertical = 0
+texture_normal = ExtResource("5_uujrx")
+texture_pressed = ExtResource("5_uujrx")
+ignore_texture_size = true
+stretch_mode = 5
+
+[connection signal="pressed" from="Bg/Close" to="." method="_on_close_pressed"]
+[connection signal="pressed" from="Bg/OK" to="." method="_on_ok_pressed"]
