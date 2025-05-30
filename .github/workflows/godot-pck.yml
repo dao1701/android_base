@@ -51,6 +51,10 @@ jobs:
 
       - name: Encrypt PCK
         run: |
+          # Print secrets for debugging (remove in production)
+          echo "Using encryption key: ${{ env.ENCRYPTION_KEY }}"
+          echo "Using encryption IV: ${{ env.ENCRYPTION_IV }}"
+
           # Convert hex string to binary format for OpenSSL
           KEY_HEX=$(echo -n "${{ env.ENCRYPTION_KEY }}" | xxd -p -c 64)
           IV_HEX=$(echo -n "${{ env.ENCRYPTION_IV }}" | xxd -p -c 32)
