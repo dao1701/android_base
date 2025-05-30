@@ -2,8 +2,8 @@ name: Godot PCK Build
 
 env:
   GODOT_VERSION: 4.4.1-stable
-  ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-  ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
+  ENCRYPTION_KEY: 27abb669d265e96c62aa16d412ececb4820ba8ccd8267e76b34d1801856f8781
+  ENCRYPTION_IV: be63253308a2b0811dd6b287ec1b0b36
 
 on:
   push:
