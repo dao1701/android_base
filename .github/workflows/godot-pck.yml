@@ -51,12 +51,8 @@ jobs:
 
       - name: Encrypt PCK
         run: |
-          # Convert hex string to binary format for OpenSSL
-          KEY_HEX=$(echo -n "${{ env.ENCRYPTION_KEY }}" | xxd -p -c 64)
-          IV_HEX=$(echo -n "${{ env.ENCRYPTION_IV }}" | xxd -p -c 32)
-          
           # Encrypt PCK file using AES-256-CBC
-          openssl enc -aes-256-cbc -in project.pck -out project.pck.enc -K "$KEY_HEX" -iv "$IV_HEX" -nosalt
+          openssl enc -aes-256-cbc -in project.pck -out project.pck.enc -K ${{ env.ENCRYPTION_KEY }} -iv ${{ env.ENCRYPTION_IV }}
           mv project.pck.enc project.pck
 
       - name: Set up Git
