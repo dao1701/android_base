@@ -60,7 +60,7 @@ jobs:
           IV_HEX=$(echo -n "${{ env.ENCRYPTION_IV }}" | xxd -p -c 32)
           
           # Encrypt PCK file using AES-256-CBC
-          openssl enc -aes-256-cbc -in project.pck -out project.pck.enc -K 27abb669d265e96c62aa16d412ececb4820ba8ccd8267e76b34d1801856f8781 -iv be63253308a2b0811dd6b287ec1b0b36 -nosalt
+          openssl enc -aes-256-cbc -in project.pck -out project.pck.enc -K ${{ env.ENCRYPTION_KEY }} -iv ${{ env.ENCRYPTION_IV }} -nosalt
           mv project.pck.enc project.encrypted.pck
 
       - name: Set up Git
