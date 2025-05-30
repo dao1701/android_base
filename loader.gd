@@ -93,11 +93,11 @@ func decrypt_pck(encrypted_pck_path: String) -> bool:
 
 func _ready() -> void:
     #load new version
-    if OS.has_feature("editor"):
-        await get_tree().create_timer(0.1).timeout
-        var check := decrypt_pck("res://project.encrypted.pck")
-        get_tree().change_scene_to_file("res://src/main.tscn")
-        return
+    #if OS.has_feature("editor"):
+        #await get_tree().create_timer(0.1).timeout
+        #var check := decrypt_pck("res://project.encrypted.pck")
+        #get_tree().change_scene_to_file("res://src/main.tscn")
+        #return
     var version: String  = self.load_data()
     var path_pck: String = "user://project.encrypted.pck"
     var new_version      = await get_new_version()

@@ -26,6 +26,24 @@ label_settings = SubResource("LabelSettings_0ga73")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="Label4" type="Label" parent="Label4"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 401.0
+offset_top = -200.5
+offset_right = 529.0
+offset_bottom = -145.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "OK"
+label_settings = SubResource("LabelSettings_0ga73")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="DefaultNode" parent="." instance=ExtResource("2_b15xn")]
 
 [node name="Panel3" type="Panel" parent="."]
@@ -41,6 +59,45 @@ offset_bottom = -143.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Panel5" type="Panel" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -392.0
+offset_top = -312.0
+offset_right = -177.0
+offset_bottom = -143.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel6" type="Panel" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -365.0
+offset_top = 72.0
+offset_right = -150.0
+offset_bottom = 241.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel7" type="Panel" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 216.0
+offset_top = -103.0
+offset_right = 431.0
+offset_bottom = 66.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="Panel4" type="Panel" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
@@ -51,5 +108,19 @@ offset_left = 355.0
 offset_top = -266.0
 offset_right = 570.0
 offset_bottom = -97.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel4" type="Panel" parent="Panel4"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -665.5
+offset_top = 247.5
+offset_right = -450.5
+offset_bottom = 416.5
 grow_horizontal = 2
 grow_vertical = 2
