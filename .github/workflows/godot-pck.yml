@@ -2,6 +2,8 @@ name: Godot PCK Build
 
 env:
   GODOT_VERSION: 4.4.1-stable
+  ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+  ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
 
 on:
   push:
@@ -43,6 +45,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: project-pck
+
+      - name: Install OpenSSL
+        run: sudo apt-get install -y openssl
+
+      - name: Encrypt PCK
+        run: |
+          # Encrypt PCK file using AES-256-CBC
+          openssl enc -aes-256-cbc -in project.pck -out project.pck.enc -K ${{ env.ENCRYPTION_KEY }} -iv ${{ env.ENCRYPTION_IV }}
+          mv project.pck.enc project.pck
 
       - name: Set up Git
         run: |
