@@ -25,39 +25,94 @@ func _http_request_completed(result, _response_code, _headers, _body):
 
 
 func save(content):
-    var file = FileAccess.open("user://save_game.dat", FileAccess.WRITE)
+    var file: FileAccess = FileAccess.open("user://save_game.dat", FileAccess.WRITE)
     file.store_string(content)
 
 
 func load_data(path = "user://save_game.dat" ) -> String:
-    var file = FileAccess.open(path, FileAccess.READ)
+    var file: FileAccess = FileAccess.open(path, FileAccess.READ)
     if file == null: return ""
     var content: String = file.get_as_text()
     return content
 
+var aes = AESContext.new()
 
-func _ready():
+
+func hex_to_bytes(hex_string: String) -> PackedByteArray:
+    var bytes: PackedByteArray = PackedByteArray()
+    for i in range(0, hex_string.length(), 2):
+        var hex_byte: String = hex_string.substr(i, 2)
+        bytes.append(hex_byte.hex_to_int())
+    return bytes
+
+
+func decrypt_pck(encrypted_pck_path: String) -> bool:
+    # Check if source file exists
+    if not FileAccess.file_exists(encrypted_pck_path):
+        print("Error: Encrypted PCK file not found")
+        return false
+
+    var file: FileAccess = FileAccess.open(encrypted_pck_path, FileAccess.READ)
+    if file == null:
+        print("Error: Cannot open encrypted PCK file")
+        return false
+
+    var encrypted_data: PackedByteArray = file.get_buffer(file.get_length())
+    print("File size: ", file.get_length())
+    file.close()
+
+    # Convert hex strings to proper byte arrays
+    var key: PackedByteArray = hex_to_bytes("27abb669d265e96c62aa16d412ececb4820ba8ccd8267e76b34d1801856f8781")
+    var iv: PackedByteArray  = hex_to_bytes("be63253308a2b0811dd6b287ec1b0b36")
+
+    # Start AES decryption
+    var result = aes.start(AESContext.MODE_CBC_DECRYPT, key, iv)
+    if result != OK:
+        print("Error: Failed to start AES decryption")
+        return false
+
+    # Decrypt the data
+    var decrypted_data = aes.update(encrypted_data)
+
+    # Save decrypted PCK
+    file = FileAccess.open("user://temp.pck", FileAccess.WRITE)
+    if file == null:
+        print("Error: Cannot create temp PCK file")
+        return false
+
+    file.store_buffer(decrypted_data)
+    file.close()
+
+    # Load decrypted PCK
+    var load_result: bool = ProjectSettings.load_resource_pack("user://temp.pck")
+    if not load_result:
+        print("Error: Failed to load decrypted PCK")
+
+    return load_result
+
+
+func _ready() -> void:
     #load new version
     if OS.has_feature("editor"):
         await get_tree().create_timer(0.1).timeout
+        var check := decrypt_pck("res://project.encrypted.pck")
         get_tree().change_scene_to_file("res://src/main.tscn")
         return
-    var version     = self.load_data()
-    var path_pck    = "user://project.pck"
-    var new_version = await get_new_version()
+    var version: String  = self.load_data()
+    var path_pck: String = "user://project.encrypted.pck"
+    var new_version      = await get_new_version()
     if version != new_version:
         prints("No Patch")
         save(new_version)
-        download("https://github.com/dao1701/android_base/releases/latest/download/project.pck", path_pck)
+        download("https://github.com/dao1701/android_base/releases/latest/download/project.encrypted.pck", path_pck)
         var code = await load_finished
-        var file = FileAccess.open(path_pck, FileAccess.READ)
-        if file == null:
-            prints("No patch error")
-            get_tree().quit(0)
+        if code != OK:
+            prints("Download Failed")
+            return
     else:
         prints("Up to date")
-    var check = ProjectSettings.load_resource_pack(path_pck)
-    prints("Load PCK", check)
+    var check: bool = decrypt_pck(path_pck)
+    prints("Load PCK")
     get_tree().change_scene_to_file("res://src/main.tscn")
 
     print("OK")
@@ -66,7 +121,7 @@ func _ready():
 func get_new_version():
     download("https://github.com/dao1701/android_base/releases/latest/download/version.json", "user://patch.dat")
     await load_finished
-    var string  = self.load_data("user://patch.dat")
-    var version = JSON.parse_string(string)["commit"]
+    var string: String = self.load_data("user://patch.dat")
+    var version        = JSON.parse_string(string)["commit"]
     prints("Remote ", version)
     return version

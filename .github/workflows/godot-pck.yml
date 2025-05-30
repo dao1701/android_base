@@ -57,7 +57,7 @@ jobs:
           
           # Encrypt PCK file using AES-256-CBC
           openssl enc -aes-256-cbc -in project.pck -out project.pck.enc -K "$KEY_HEX" -iv "$IV_HEX" -nosalt
-          mv project.pck.enc project.pck
+          mv project.pck.enc project.encrypted.pck
 
       - name: Set up Git
         run: |
@@ -90,7 +90,7 @@ jobs:
           tag_name: ${{ steps.vars.outputs.tag_name }}
           name: Release ${{ steps.vars.outputs.tag_name }}
           files: |
-            project.pck
+            project.encrypted.pck
             version.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
