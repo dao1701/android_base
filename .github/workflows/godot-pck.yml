@@ -53,6 +53,8 @@ jobs:
         run: |
           KEY="${{ env.ENCRYPTION_KEY }}"
           IV="${{ env.ENCRYPTION_IV }}"
+          echo "Using encryption key: $KEY"
+          echo "Using IV: $IV"
           openssl enc -aes-256-cbc -in project.pck -out project.encrypted.pck -K $KEY -iv $IV -nosalt
       - name: Set up Git
         run: |
