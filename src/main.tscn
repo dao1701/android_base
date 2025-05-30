@@ -28,15 +28,28 @@ vertical_alignment = 1
 
 [node name="DefaultNode" parent="." instance=ExtResource("2_b15xn")]
 
-[node name="Panel2" type="Panel" parent="."]
+[node name="Panel3" type="Panel" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -35.0
-offset_top = -62.0
-offset_right = 180.0
-offset_bottom = 107.0
+offset_left = -392.0
+offset_top = -312.0
+offset_right = -177.0
+offset_bottom = -143.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel4" type="Panel" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 355.0
+offset_top = -266.0
+offset_right = 570.0
+offset_bottom = -97.0
 grow_horizontal = 2
 grow_vertical = 2

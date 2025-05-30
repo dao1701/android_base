@@ -51,9 +51,9 @@ jobs:
 
       - name: Encrypt PCK
         run: |
-          # Encrypt PCK file using AES-256-CBC
-          openssl enc -aes-256-cbc -in project.pck -out project.encrypted.pck -K 27abb669d265e96c62aa16d412ececb4820ba8ccd8267e76b34d1801856f8781 -iv be63253308a2b0811dd6b287ec1b0b36 -nosalt
-
+          KEY="${{ env.ENCRYPTION_KEY }}"
+          IV="${{ env.ENCRYPTION_IV }}"
+          openssl enc -aes-256-cbc -in project.pck -out project.encrypted.pck -K $KEY -iv $IV -nosalt
       - name: Set up Git
         run: |
           git config --global user.name 'GitHub Actions'
