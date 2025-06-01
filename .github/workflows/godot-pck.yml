@@ -67,7 +67,7 @@ jobs:
           
           # Get previous tag safely
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
+          echo "Previous tag: $PREV_TAG"
           # Create version info as JSON
           echo "{
             \"release\": \"$TAG_NAME\",
