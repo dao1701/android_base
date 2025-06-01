@@ -72,6 +72,7 @@ jobs:
             \"branch\": \"${{ github.ref_name }}\",
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
           }" > version.json
+          git checkout main
           git diff --name-status HEAD^..HEAD 
 
       - name: Create Git tag
