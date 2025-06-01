@@ -88,19 +88,7 @@ jobs:
           git push origin ${{ steps.vars.outputs.tag_name }}
       - name: Generate version.diff
         run: |
-          if [ -n "$PREV_TAG" ]; then
-            # If there was a previous tag, show changes since then
-            echo "Changes since $PREV_TAG:" > version.diff
-            git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD >> version.diff
-            echo -e "\n\nDetailed changes:" >> version.diff
-            git diff --name-status $PREV_TAG..HEAD >> version.diff
-          else
-            # If this is the first tag, show all changes
-            echo "Initial Release" > version.diff
-            git log --pretty=format:"%h - %s (%cr) <%an>" >> version.diff
-            echo -e "\n\nFiles in initial release:" >> version.diff
-            git ls-tree -r --name-only HEAD >> version.diff
-          fi
+          git diff ${PREV_COMMIT}..${LATEST_COMMIT} > version.diff || echo "No changes since last tag"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
