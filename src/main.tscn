@@ -12,23 +12,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -392.0
-offset_top = -312.0
-offset_right = -177.0
-offset_bottom = -143.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Panel5" type="Panel" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -339.0
-offset_top = -7.0
-offset_right = -124.0
-offset_bottom = 162.0
+offset_left = 314.0
+offset_top = 101.0
+offset_right = 529.0
+offset_bottom = 270.0
 grow_horizontal = 2
 grow_vertical = 2
 
