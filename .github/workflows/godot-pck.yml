@@ -73,7 +73,7 @@ jobs:
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
           }" > version.json
           git checkout main
-          git diff --name-status HEAD^..HEAD 
+          git diff main~1 main --name-status >version.diff
 
       - name: Create Git tag
         run: |
@@ -88,5 +88,6 @@ jobs:
           files: |
             project.encrypted.pck
             version.json
+            version.diff
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
