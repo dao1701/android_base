@@ -76,16 +76,16 @@ jobs:
             \"branch\": \"${{ github.ref_name }}\",
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
           }" > version.json
-          
-          # Generate version.diff
-          git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD > version.diff
-          echo "\nDetailed changes:" >> version.diff
-          git log --patch $PREV_TAG..HEAD >> version.diff
 
       - name: Create Git tag
         run: |
           git tag ${{ steps.vars.outputs.tag_name }}
           git push origin ${{ steps.vars.outputs.tag_name }}
+      - name: Generate version.diff
+        run: |
+          git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD > version.diff
+          echo "\nDetailed changes:" >> version.diff
+          git log --patch $PREV_TAG..HEAD >> version.diff
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
