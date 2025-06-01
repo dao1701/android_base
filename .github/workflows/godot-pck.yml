@@ -90,7 +90,7 @@ jobs:
           echo "Generating diff between previous and latest commit"
           echo "Previous commit: ${PREV_COMMIT}"
           echo "Latest commit: ${LATEST_COMMIT}"
-          git diff ${PREV_COMMIT}..${LATEST_COMMIT} >> version.diff
+          git diff --name-status ${PREV_COMMIT}..${LATEST_COMMIT} >> version.diff
       - name: Create Git tag
         run: |
           git tag ${{ steps.vars.outputs.tag_name }}
