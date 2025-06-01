@@ -72,8 +72,7 @@ jobs:
             \"branch\": \"${{ github.ref_name }}\",
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
           }" > version.json
-          echo "Change files:"
-          git diff --name-status HEAD^..HEAD > changes.txt
+          git diff --name-status HEAD^..HEAD 
 
       - name: Create Git tag
         run: |
