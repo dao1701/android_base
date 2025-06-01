@@ -64,6 +64,10 @@ jobs:
         run: |
           TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 --first-parent)
+          
           # Create version info as JSON
           echo "{
             \"release\": \"$TAG_NAME\",
@@ -72,8 +76,11 @@ jobs:
             \"branch\": \"${{ github.ref_name }}\",
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
           }" > version.json
-          git checkout main
-          git diff main~1 main --name-status >version.diff
+          
+          # Generate version.diff
+          git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD > version.diff
+          echo "\nDetailed changes:" >> version.diff
+          git log --patch $PREV_TAG..HEAD >> version.diff
 
       - name: Create Git tag
         run: |
