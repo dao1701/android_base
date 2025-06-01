@@ -87,7 +87,7 @@ jobs:
           git tag ${{ steps.vars.outputs.tag_name }}
           git push origin ${{ steps.vars.outputs.tag_name }}
       - name: Generate version.diff
-        run: |
+        run: 
           git diff ${PREV_COMMIT}..${LATEST_COMMIT} >> version.diff
 
       - name: Create GitHub Release
