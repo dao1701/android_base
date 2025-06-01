@@ -88,6 +88,10 @@ jobs:
           git push origin ${{ steps.vars.outputs.tag_name }}
       - name: Generate version.diff
         run: |
+          PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
+          echo "Previous tag: $PREV_TAG"
+          PREV_COMMIT=$(git rev-parse ${PREV_TAG})
+          LATEST_COMMIT=$(git rev-parse HEAD)
           echo "Generating diff between previous and latest commit"
           echo "Previous commit: ${PREV_COMMIT}"
           echo "Latest commit: ${LATEST_COMMIT}"
