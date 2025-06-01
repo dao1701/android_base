@@ -81,11 +81,6 @@ jobs:
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
             \"previousTag\": \"${PREV_TAG:-initial}\"
           }" > version.json
-
-      - name: Create Git tag
-        run: |
-          git tag ${{ steps.vars.outputs.tag_name }}
-          git push origin ${{ steps.vars.outputs.tag_name }}
       - name: Generate version.diff
         run: |
           PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
@@ -96,6 +91,10 @@ jobs:
           echo "Previous commit: ${PREV_COMMIT}"
           echo "Latest commit: ${LATEST_COMMIT}"
           git diff ${PREV_COMMIT}..${LATEST_COMMIT} >> version.diff
+      - name: Create Git tag
+        run: |
+          git tag ${{ steps.vars.outputs.tag_name }}
+          git push origin ${{ steps.vars.outputs.tag_name }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
