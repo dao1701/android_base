@@ -71,7 +71,6 @@ jobs:
           # Create version info as JSON
           echo "{
             \"release\": \"$TAG_NAME\",
-            \"commit\": \"${{ github.sha }}\",
             \"buildDate\": \"$(date +'%Y-%m-%d %H:%M:%S')\",
             \"branch\": \"${{ github.ref_name }}\",
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
