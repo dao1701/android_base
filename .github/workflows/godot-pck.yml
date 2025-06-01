@@ -67,13 +67,27 @@ jobs:
         run: |
           TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          
+          # Get the last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          # Create changes.txt with list of changes since last release
+          if [ -n "$LAST_TAG" ]; then
+            echo "Changes since $LAST_TAG:" > changes.txt
+            git log --pretty=format:"- %s" $LAST_TAG..HEAD >> changes.txt
+          else
+            echo "Initial Release" > changes.txt
+            git log --pretty=format:"- %s" >> changes.txt
+          fi
+          
           # Create version info as JSON
           echo "{
             \"release\": \"$TAG_NAME\",
             \"commit\": \"${{ github.sha }}\",
             \"buildDate\": \"$(date +'%Y-%m-%d %H:%M:%S')\",
             \"branch\": \"${{ github.ref_name }}\",
-            \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
+            \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
+            \"previousTag\": \"$LAST_TAG\"
           }" > version.json
 
       - name: Create Git tag
@@ -89,5 +103,6 @@ jobs:
           files: |
             project.encrypted.pck
             version.json
+            changes.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
