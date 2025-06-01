@@ -65,15 +65,16 @@ jobs:
           TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           
-          # Get previous tag
-          PREV_TAG=$(git describe --tags --abbrev=0 --first-parent)
+          # Get previous tag safely
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           
           # Create version info as JSON
           echo "{
             \"release\": \"$TAG_NAME\",
             \"buildDate\": \"$(date +'%Y-%m-%d %H:%M:%S')\",
             \"branch\": \"${{ github.ref_name }}\",
-            \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
+            \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
+            \"previousTag\": \"${PREV_TAG:-initial}\"
           }" > version.json
 
       - name: Create Git tag
@@ -82,9 +83,19 @@ jobs:
           git push origin ${{ steps.vars.outputs.tag_name }}
       - name: Generate version.diff
         run: |
-          git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD > version.diff
-          echo "\nDetailed changes:" >> version.diff
-          git log --patch $PREV_TAG..HEAD >> version.diff
+          if [ -n "$PREV_TAG" ]; then
+            # If there was a previous tag, show changes since then
+            echo "Changes since $PREV_TAG:" > version.diff
+            git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD >> version.diff
+            echo -e "\n\nDetailed changes:" >> version.diff
+            git diff --name-status $PREV_TAG..HEAD >> version.diff
+          else
+            # If this is the first tag, show all changes
+            echo "Initial Release" > version.diff
+            git log --pretty=format:"%h - %s (%cr) <%an>" >> version.diff
+            echo -e "\n\nFiles in initial release:" >> version.diff
+            git ls-tree -r --name-only HEAD >> version.diff
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
