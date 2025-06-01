@@ -1,4 +1,3 @@
-@tool
 extends Node
 
 signal load_finished(result: int)
@@ -111,7 +110,7 @@ func _ready() -> void:
     else:
         prints("Up to date")
     var check: bool = decrypt_pck(path_pck)
-    prints("Load PCK")
+    prints("Load PCK ",check)
     get_tree().change_scene_to_file("res://src/main.tscn")
 
     print("OK")
