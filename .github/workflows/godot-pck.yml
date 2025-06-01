@@ -16,22 +16,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Download Godot
-      run: |
-        wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
-        unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
-        chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
+      - name: Download Godot
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+          unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+          chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
 
-    - name: Create PCK file
-      run: |
-        ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
-    - name: Upload PCK file
-      uses: actions/upload-artifact@v4
-      with:
-        name: project-pck
-        path: project.pck
+      - name: Create PCK file
+        run: |
+          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
+      - name: Upload PCK file
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-pck
+          path: project.pck
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -45,9 +45,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: project-pck
-
-      - name: Install OpenSSL
-        run: sudo apt-get install -y openssl
 
       - name: Encrypt PCK
         run: |
@@ -75,6 +72,8 @@ jobs:
             \"branch\": \"${{ github.ref_name }}\",
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\"
           }" > version.json
+          echo "Change files:"
+          git diff --name-status HEAD^..HEAD > changes.txt
 
       - name: Create Git tag
         run: |
