@@ -69,7 +69,7 @@ jobs:
           # Get previous tag safely
           PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
           echo "Previous tag: $PREV_TAG"
-          PREV_COMMIT =$(git rev-list -n 1)
+          PREV_COMMIT =$(git rev-parse $PREV_TAG)
           LATEST_COMMIT=$(git rev-parse HEAD)
           echo "Previous commit: $PREV_COMMIT"
           echo "Latest commit: $LATEST_COMMIT"
