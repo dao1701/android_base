@@ -6,3 +6,5 @@
 *.tmp
 Makefile
 *.pck
+export_presets.cfg
+*.apk
