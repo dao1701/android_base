@@ -61,10 +61,10 @@ grow_vertical = 2
 [node name="DefaultNode" parent="." instance=ExtResource("2_b15xn")]
 
 [node name="Label" type="Label" parent="."]
-offset_left = 618.0
-offset_top = 2.0
-offset_right = 846.0
-offset_bottom = 511.0
+offset_left = 148.0
+offset_top = 320.0
+offset_right = 376.0
+offset_bottom = 829.0
 text = "dfasdfasdf\\ádf\\ádf\\á\\df\\sda\\f
 ádf
 sda
