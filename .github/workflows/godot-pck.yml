@@ -96,6 +96,27 @@ jobs:
           git tag ${{ steps.vars.outputs.tag_name }}
           git push origin ${{ steps.vars.outputs.tag_name }}
 
+      - name: Generate all_releases.json
+        run: |
+          echo "[" > all_releases.json
+          git tag -l | sort -V | while read -r tag; do
+            if [ ! -z "$tag" ]; then
+              commit_hash=$(git rev-parse $tag)
+              commit_date=$(git log -1 --format=%ai $tag)
+              commit_msg=$(git log -1 --format=%B $tag)
+              if [ "$(head -c 2 all_releases.json)" != "[{" ]; then
+                echo "," >> all_releases.json
+              fi
+              echo "{
+                \"tag\": \"$tag\",
+                \"date\": \"$commit_date\",
+                \"commit\": \"$commit_hash\",
+                \"message\": \"$commit_msg\"
+              }" >> all_releases.json
+            fi
+          done
+          echo "]" >> all_releases.json
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -105,5 +126,6 @@ jobs:
             project.encrypted.pck
             version.json
             version.diff
+            all_releases.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
