@@ -62,7 +62,7 @@ grow_vertical = 2
 
 [node name="Label" type="Label" parent="."]
 offset_left = 618.0
-offset_top = 280.0
+offset_top = 2.0
 offset_right = 846.0
 offset_bottom = 511.0
 text = "dfasdfasdf\\ádf\\ádf\\á\\df\\sda\\f
