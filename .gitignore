@@ -4,8 +4,8 @@
 .idea
 */*.tmp
 *.tmp
-Makefile
-*.pck
-*.apk
-custom_settings.cfg
+project.encrypted.pck
+project.pck
 Base-game.apk.idsig
+Base-game.apk
+custom_settings.cfg
