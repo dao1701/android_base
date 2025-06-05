@@ -90,8 +90,7 @@ jobs:
       - name: Build APK
         run: |
           ls -a
-          mkdir -p android/build
-          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --headless --export-release "Android" ./android/build/game.apk
+          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --headless --export-debug "Android"
         env:
           ANDROID_KEYSTORE_PATH: debug.keystore
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -103,7 +102,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-release
-          path: android/build/game.apk
+          path: Base-game.apk
 
   # Release job: Creates GitHub release with encrypted PCK
   release:
