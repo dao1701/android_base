@@ -22,26 +22,21 @@ jobs:
   # Build job: Creates the PCK file
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout repository
       - uses: actions/checkout@v3
 
       # Configure project settings
       - name: Add addons config
         run: |
-          # Add addon source URL to project.godot
           echo -e "\n[addons]\nsource_url = \"https://github.com/dao1701/android_base/releases/latest/download\"" >> project.godot
 
       - name: Add encryption config
         run: |
-          # Add encryption keys to project.godot
           echo -e "\n[encryption]\nkey=\"${{ env.ENCRYPTION_KEY }}\"\niv=\"${{ env.ENCRYPTION_IV }}\"" >> project.godot
 
       # Setup Godot
       - name: Download Godot
         run: |
-          # Download and prepare Godot executable
           wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
           unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
           chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
@@ -70,9 +65,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
       # Setup Android SDK
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3      
+        uses: android-actions/setup-android@v3
+        
       # Download Godot and export templates
       - name: Download Godot
         run: |
@@ -83,31 +80,44 @@ jobs:
           unzip Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz -d ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}
           chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
 
-      # Setup Android keystore
-      - name: Create keystore
+      # Setup Android keystore and credentials
+      - name: Setup Android build files
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > debug.keystore
+          # Create keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > debug.keystore
           
+          # Create export_credentials.cfg
+          mkdir -p .godot
+          echo '[preset.0]
+
+          script_encryption_key=""
+
+          [preset.0.options]
+
+          keystore/debug="./debug.keystore"
+          keystore/debug_user="androiddebugkey"
+          keystore/debug_password="android"
+          keystore/release=""
+          keystore/release_user=""
+          keystore/release_password=""' > .godot/export_credentials.cfg
+
       # Build APK
       - name: Build APK
         run: |
-          ls ./android/build/libs/debug
-          chmod +x ./android/build/gradlew
-          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --headless --export-debug "Android"
+          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --headless --export-debug "Android" ./Base-game.apk
         env:
           ANDROID_KEYSTORE_PATH: debug.keystore
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           
-      # Upload APK artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-release
           path: Base-game.apk
 
-  # Release job: Creates GitHub release with encrypted PCK
+  # Release job: Creates GitHub release with encrypted PCK and APK
   release:
     needs: [build, build-android]
     runs-on: ubuntu-latest
@@ -115,7 +125,6 @@ jobs:
       contents: write
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      # Get code and artifacts
       - uses: actions/checkout@v3
 
       - name: Download PCK artifact
@@ -127,15 +136,14 @@ jobs:
         run: |
           KEY="${{ env.ENCRYPTION_KEY }}"
           IV="${{ env.ENCRYPTION_IV }}"
-          echo "Using encryption key: $KEY"
-          echo "Using IV: $IV"
           openssl enc -aes-256-cbc -in project.pck -out project.encrypted.pck -K $KEY -iv $IV -nosalt
+
       - name: Set up Git
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git fetch --prune --unshallow || git fetch # Fetch full history
-          git fetch --tags # Fetch all tags
+          git fetch --prune --unshallow || git fetch
+          git fetch --tags
 
       - name: Get version/tag
         id: vars
@@ -143,14 +151,8 @@ jobs:
           TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           
-          # Get previous tag safely
           PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
           echo "Previous tag: $PREV_TAG"
-          PREV_COMMIT=$(git rev-parse ${PREV_TAG})
-          LATEST_COMMIT=$(git rev-parse HEAD)
-          echo "Previous commit: $PREV_COMMIT"
-          echo "Latest commit: $LATEST_COMMIT"
-          # Create version info as JSON
           echo "{
             \"release\": \"$TAG_NAME\",
             \"buildDate\": \"$(date +'%Y-%m-%d %H:%M:%S')\",
@@ -158,31 +160,20 @@ jobs:
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
             \"previousTag\": \"${PREV_TAG:-initial}\"
           }" > version.json
-      # Generate detailed changes between releases
+
       - name: Generate version.diff
         run: |
           if [ -n "$PREV_TAG" ]; then
-            # If there was a previous tag, show changes since then
             echo "Changes since $PREV_TAG:" > version.diff
             echo -e "\nCommit History:" >> version.diff
             git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD >> version.diff
             echo -e "\n\nChanged Files:" >> version.diff
-            git diff --name-status $PREV_TAG..HEAD | while read -r status file; do
-              case $status in
-                "A") echo "+ Added:    $file" >> version.diff ;;
-                "M") echo "~ Modified: $file" >> version.diff ;;
-                "D") echo "- Deleted:  $file" >> version.diff ;;
-                *) echo "? Changed:  $file" >> version.diff ;;
-              esac
-            done
+            git diff --name-status $PREV_TAG..HEAD >> version.diff
           else
-            # If this is the first tag, show all changes
             echo "Initial Release" > version.diff
-            echo -e "\nCommit History:" >> version.diff
             git log --pretty=format:"%h - %s (%cr) <%an>" >> version.diff
-            echo -e "\n\nInitial Files:" >> version.diff
-            git ls-tree -r --name-only HEAD >> version.diff
           fi
+
       - name: Create Git tag
         run: |
           git tag ${{ steps.vars.outputs.tag_name }}
@@ -224,6 +215,6 @@ jobs:
             version.json
             version.diff
             all_releases.json
-            game.apk
+            Base-game.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
