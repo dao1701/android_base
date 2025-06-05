@@ -92,6 +92,7 @@ func decrypt_pck(encrypted_pck_path: String) -> bool:
 
 func _ready() -> void:
     #load new version
+    prints(ProjectSettings.get_setting("encryption/key"))
     if OS.has_feature("editor"):
         await get_tree().create_timer(0.1).timeout
         get_tree().change_scene_to_file("res://src/main.tscn")
