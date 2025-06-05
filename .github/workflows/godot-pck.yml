@@ -70,7 +70,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      
+      # Setup Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3      
       # Download Godot and export templates
       - name: Download Godot
         run: |
