@@ -6,6 +6,10 @@ env:
   GODOT_VERSION: 4.4.1-stable         # Godot engine version
   ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}  # PCK encryption key
   ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}    # PCK encryption IV
+  KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}  # Android keystore base64
+  KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}  # Keystore password
+  KEY_ALIAS: ${{ secrets.KEY_ALIAS }}  # Key alias
+  KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}  # Key password
 
 # Trigger events
 on:
@@ -52,9 +56,63 @@ jobs:
         with:
           name: project-pck
           path: project.pck
+
+  # Build Android APK job
+  build-android:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      # Setup Java
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      # Download Godot and export templates
+      - name: Download Godot
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+          wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz
+          unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+          mkdir -p ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}
+          unzip Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz -d ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}
+          chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
+
+      # Setup Android keystore
+      - name: Create keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > debug.keystore
+          
+      # Download PCK from previous job
+      - name: Download PCK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: project-pck
+          
+      # Build APK
+      - name: Build APK
+        run: |
+          mkdir -p android/build
+          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --headless --export-release "Android" ./android/build/game.apk
+        env:
+          ANDROID_KEYSTORE_PATH: debug.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          
+      # Upload APK artifact
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: android/build/game.apk
+
   # Release job: Creates GitHub release with encrypted PCK
   release:
-    needs: build
+    needs: [build, build-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -154,6 +212,11 @@ jobs:
           done
           echo "]" >> all_releases.json
 
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-release
+          
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -164,5 +227,6 @@ jobs:
             version.json
             version.diff
             all_releases.json
+            game.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
