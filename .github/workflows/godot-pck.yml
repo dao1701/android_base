@@ -86,9 +86,11 @@ jobs:
           # Create keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > debug.keystore
           
-          # Create export_credentials.cfg
+      - name: Create export credentials
+        run: |
           mkdir -p .godot
-          echo '[preset.0]
+          cat << 'EOF' > .godot/export_credentials.cfg
+          [preset.0]
 
           script_encryption_key=""
 
@@ -99,8 +101,8 @@ jobs:
           keystore/debug_password="android"
           keystore/release=""
           keystore/release_user=""
-          keystore/release_password=""' > .godot/export_credentials.cfg
-
+          keystore/release_password=""
+          EOF
       # Build APK
       - name: Build APK
         run: |
