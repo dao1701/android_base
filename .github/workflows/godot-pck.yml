@@ -91,7 +91,7 @@ jobs:
       # Build APK
       - name: Build APK
         run: |
-          ls -a
+          ls ./android/build/libs/debug
           chmod +x ./android/build/gradlew
           ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --headless --export-debug "Android"
         env:
