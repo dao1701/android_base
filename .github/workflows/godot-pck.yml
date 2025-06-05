@@ -1,10 +1,13 @@
+# Workflow name
 name: Godot PCK Build
 
+# Environment variables
 env:
-  GODOT_VERSION: 4.4.1-stable
-  ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-  ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
+  GODOT_VERSION: 4.4.1-stable         # Godot engine version
+  ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}  # PCK encryption key
+  ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}    # PCK encryption IV
 
+# Trigger events
 on:
   push:
     branches: [ main ]
@@ -12,30 +15,44 @@ on:
     branches: [ main ]
 
 jobs:
+  # Build job: Creates the PCK file
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - uses: actions/checkout@v3
+
+      # Configure project settings
+      - name: Add addons config
+        run: |
+          # Add addon source URL to project.godot
+          echo -e "\n[addons]\nsource_url = \"https://github.com/dao1701/android_base/releases/latest/download\"" >> project.godot
 
       - name: Add encryption config
         run: |
+          # Add encryption keys to project.godot
           echo -e "\n[encryption]\nkey=\"${{ env.ENCRYPTION_KEY }}\"\niv=\"${{ env.ENCRYPTION_IV }}\"" >> project.godot
 
+      # Setup Godot
       - name: Download Godot
         run: |
+          # Download and prepare Godot executable
           wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
           unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
           chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
 
+      # Create and upload PCK
       - name: Create PCK file
         run: |
           ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
+
       - name: Upload PCK file
         uses: actions/upload-artifact@v4
         with:
           name: project-pck
           path: project.pck
+  # Release job: Creates GitHub release with encrypted PCK
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -43,6 +60,7 @@ jobs:
       contents: write
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
+      # Get code and artifacts
       - uses: actions/checkout@v3
 
       - name: Download PCK artifact
@@ -85,16 +103,31 @@ jobs:
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
             \"previousTag\": \"${PREV_TAG:-initial}\"
           }" > version.json
+      # Generate detailed changes between releases
       - name: Generate version.diff
         run: |
-          PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
-          echo "Previous tag: $PREV_TAG"
-          PREV_COMMIT=$(git rev-parse ${PREV_TAG})
-          LATEST_COMMIT=$(git rev-parse HEAD)
-          echo "Generating diff between previous and latest commit"
-          echo "Previous commit: ${PREV_COMMIT}"
-          echo "Latest commit: ${LATEST_COMMIT}"
-          git diff --name-status ${PREV_COMMIT}..${LATEST_COMMIT} >> version.diff
+          if [ -n "$PREV_TAG" ]; then
+            # If there was a previous tag, show changes since then
+            echo "Changes since $PREV_TAG:" > version.diff
+            echo -e "\nCommit History:" >> version.diff
+            git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD >> version.diff
+            echo -e "\n\nChanged Files:" >> version.diff
+            git diff --name-status $PREV_TAG..HEAD | while read -r status file; do
+              case $status in
+                "A") echo "+ Added:    $file" >> version.diff ;;
+                "M") echo "~ Modified: $file" >> version.diff ;;
+                "D") echo "- Deleted:  $file" >> version.diff ;;
+                *) echo "? Changed:  $file" >> version.diff ;;
+              esac
+            done
+          else
+            # If this is the first tag, show all changes
+            echo "Initial Release" > version.diff
+            echo -e "\nCommit History:" >> version.diff
+            git log --pretty=format:"%h - %s (%cr) <%an>" >> version.diff
+            echo -e "\n\nInitial Files:" >> version.diff
+            git ls-tree -r --name-only HEAD >> version.diff
+          fi
       - name: Create Git tag
         run: |
           git tag ${{ steps.vars.outputs.tag_name }}
