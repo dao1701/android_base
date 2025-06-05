@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Base-game"
 run/main_scene="res://loader.tscn"
-config/project_settings_override="res://custom_settings.cfg"
+config/project_settings_override="user://custom_settings.cfg"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"

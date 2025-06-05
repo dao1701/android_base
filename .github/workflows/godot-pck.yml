@@ -18,21 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create custom_settings.cfg
+      - name: Add encryption config
         run: |
-          cat > custom_settings.cfg << EOL
-          [rendering]
-          renderer/rendering_method="gl_compatibility"
-
-          [loader]
-          version_file="user://patch.dat"
-          encrypted_pck="user://project.encrypted.pck"
-          temp_pck="user://temp.pck"
-
-          [encryption]
-          key="${{ secrets.ENCRYPTION_KEY }}"
-          iv="${{ secrets.ENCRYPTION_IV }}"
-          EOL
+          echo -e "\n[encryption]\nkey=\"${{ env.ENCRYPTION_KEY }}\"\niv=\"${{ env.ENCRYPTION_IV }}\"" >> project.godot
 
       - name: Download Godot
         run: |
