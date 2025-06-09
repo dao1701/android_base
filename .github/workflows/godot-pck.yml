@@ -69,6 +69,13 @@ jobs:
       # Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+      # Setup Android NDK
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d
+          link-to-sdk: true
         
       # Download Godot and export templates
       - name: Download Godot
