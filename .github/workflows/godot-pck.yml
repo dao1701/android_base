@@ -114,7 +114,7 @@ jobs:
       - name: Build APK
         run: |
           chmod +x ./android/build/gradlew
-          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --verbose --headless --export-debug "Android" ./Base-game.apk
+          ./android/build/gradlew assembleDebug
         env:
           ANDROID_KEYSTORE_PATH: debug.keystore
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
