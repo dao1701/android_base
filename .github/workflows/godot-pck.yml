@@ -114,7 +114,10 @@ jobs:
       - name: Build APK
         run: |
           chmod +x ./android/build/gradlew
-          ./android/build/gradlew assembleDebug
+          cd android/build
+          ls -la
+          echo "Building APK with Godot version: ${{ env.GODOT_VERSION }}"
+          ./gradlew assembleDebug
         env:
           ANDROID_KEYSTORE_PATH: debug.keystore
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
