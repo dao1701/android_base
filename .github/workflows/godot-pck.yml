@@ -57,3 +57,14 @@ jobs:
         with:
           godot-version: ${{ env.GODOT_VERSION }}
           working-directory: $WORKING_DIRECTORY
+
+
+      - name: Upload binaries to Github release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./OK.aab
+          asset_name: OK.aab
+          tag: ${{ env.VERSION_NAME }}-${{ env.VERSION_CODE }}
+          overwrite: true
+          body: "OK - version: ${{ env.VERSION_NAME }} code: ${{ env.VERSION_CODE }}"
