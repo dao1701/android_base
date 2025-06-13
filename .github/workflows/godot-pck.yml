@@ -50,8 +50,8 @@ jobs:
           echo "VERSION_NAME: $VERSION_NAME"
           echo "VERSION_CODE: $VERSION_CODE"
           echo "GODOT_VERSION: $GODOT_VERSION"
-          echo cat $WORKING_DIRECTORY/export_presets.cfg
-          echo cat $WORKING_DIRECTORY/.godot/export_credentials.cfg    
+          cat $WORKING_DIRECTORY/export_presets.cfg
+          cat $WORKING_DIRECTORY/.godot/export_credentials.cfg    
       - name: Godot Android export
         uses: dulvui/godot-android-export@v4.0.4
         with:
