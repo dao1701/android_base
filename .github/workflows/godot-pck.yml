@@ -69,13 +69,6 @@ jobs:
       # Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3.2.2
-      # Setup Android NDK
-      - name: Setup Android NDK
-        uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r26d
-          link-to-sdk: true
         
       # Download Godot and export templates
       - name: Download Godot
@@ -114,10 +107,8 @@ jobs:
       - name: Build APK
         run: |
           chmod +x ./android/build/gradlew
-          cd android/build
-          ls -la
           echo "Building APK with Godot version: ${{ env.GODOT_VERSION }}"
-          godot --export-release "Android" --headless 
+          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-release "Android" --headless 
         env:
           ANDROID_KEYSTORE_PATH: debug.keystore
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
