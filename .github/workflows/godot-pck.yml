@@ -19,6 +19,8 @@ env:
 jobs:
   # Build job: Creates the PCK file
   build:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
