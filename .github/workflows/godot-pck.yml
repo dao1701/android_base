@@ -1,15 +1,8 @@
-# Workflow name
-name: Godot PCK Build
+# SPDX-FileCopyrightText: 2023 Simon Dalvai <info@simondalvai.org>
 
-# Environment variables
-env:
-  GODOT_VERSION: 4.4.1-stable         # Godot engine version
-  ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}  # PCK encryption key
-  ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}    # PCK encryption IV
-  KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}  # Android keystore base64
-  KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}  # Keystore password
-  KEY_ALIAS: ${{ secrets.KEY_ALIAS }}  # Key alias
-  KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}  # Key password
+# SPDX-License-Identifier: CC0-1.0
+
+name: Android upload
 
 # Trigger events
 on:
@@ -18,207 +11,42 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  GODOT_VERSION: 4.4.1
+  ANDROID_KEYSTORE_DEBUG_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+  WORKING_DIRECTORY: .
+
 jobs:
   # Build job: Creates the PCK file
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-      # Configure project settings
-      - name: Add addons config
+      - name: Read version number and version code
         run: |
-          echo -e "\n[addons]\nsource_url = \"https://github.com/dao1701/android_base/releases/latest/download\"" >> project.godot
+          echo "VERSION_NAME=$(cat version | cut -f1 -d-)" >> $GITHUB_ENV
+          echo "VERSION_CODE=$(cat version | cut -f2 -d-)" >> $GITHUB_ENV
 
-      - name: Add encryption config
+      - name: Create keystores
         run: |
-          echo -e "\n[encryption]\nkey=\"${{ env.ENCRYPTION_KEY }}\"\niv=\"${{ env.ENCRYPTION_IV }}\"" >> project.godot
+          echo $ANDROID_KEYSTORE_DEBUG_BASE64 | base64 --decode > debug.keystore
 
-      # Setup Godot
-      - name: Download Godot
+      - name: Create export_presets.cfg and inject values
         run: |
-          wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
-          unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
-          chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
+          cp game/export_presets.android.example game/export_presets.cfg
+          sed -i "s|VERSION_CODE|$VERSION_CODE|g" $WORKING_DIRECTORY/export_presets.cfg
+          sed -i "s|VERSION_NAME|$VERSION_NAME|g" $WORKING_DIRECTORY/export_presets.cfg
 
-      # Create and upload PCK
-      - name: Create PCK file
+      - name: Create export_credentials.cfg and inject values
         run: |
-          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
+          mkdir $WORKING_DIRECTORY/.godot/
+          cp $WORKING_DIRECTORY/export_credentials.android.example $WORKING_DIRECTORY/.godot/export_credentials.cfg
+          sed -i "s|KEYSTORE_DEBUG_PATH|$GITHUB_WORKSPACE/debug.keystore|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
 
-      - name: Upload PCK file
-        uses: actions/upload-artifact@v4
+      - name: Godot Android export
+        uses: dulvui/godot-android-export@v4.0.4
         with:
-          name: project-pck
-          path: project.pck
-
-  # Build Android APK job
-  build-android:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      # Setup Java
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      # Setup Android SDK
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3.2.2
-        
-      # Download Godot and export templates
-      - name: Download Godot
-        run: |
-          wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
-          wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz
-          unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
-          mkdir -p ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}
-          unzip Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz -d ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}
-          chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
-
-      # Setup Android keystore and credentials
-      - name: Setup Android build files
-        run: |
-          # Create keystore
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > debug.keystore
-          
-      - name: Create export credentials
-        run: |
-          mkdir -p .godot
-          cat << 'EOF' > .godot/export_credentials.cfg
-          [preset.0]
-
-          script_encryption_key=""
-
-          [preset.0.options]
-
-          keystore/debug="./debug.keystore"
-          keystore/debug_user="androiddebugkey"
-          keystore/debug_password="android"
-          keystore/release=""
-          keystore/release_user=""
-          keystore/release_password=""
-          EOF
-      # Build APK
-      - name: Build APK
-        run: |
-          chmod +x ./android/build/gradlew
-          echo "Building APK with Godot version: ${{ env.GODOT_VERSION }}"
-          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-release "Android" --headless 
-        env:
-          ANDROID_KEYSTORE_PATH: debug.keystore
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-release
-          path: Base-game.apk
-
-  # Release job: Creates GitHub release with encrypted PCK and APK
-  release:
-    needs: [build, build-android]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Download PCK artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: project-pck
-
-      - name: Encrypt PCK
-        run: |
-          KEY="${{ env.ENCRYPTION_KEY }}"
-          IV="${{ env.ENCRYPTION_IV }}"
-          openssl enc -aes-256-cbc -in project.pck -out project.encrypted.pck -K $KEY -iv $IV -nosalt
-
-      - name: Set up Git
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git fetch --prune --unshallow || git fetch
-          git fetch --tags
-
-      - name: Get version/tag
-        id: vars
-        run: |
-          TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          
-          PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
-          echo "Previous tag: $PREV_TAG"
-          echo "{
-            \"release\": \"$TAG_NAME\",
-            \"buildDate\": \"$(date +'%Y-%m-%d %H:%M:%S')\",
-            \"branch\": \"${{ github.ref_name }}\",
-            \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
-            \"previousTag\": \"${PREV_TAG:-initial}\"
-          }" > version.json
-
-      - name: Generate version.diff
-        run: |
-          if [ -n "$PREV_TAG" ]; then
-            echo "Changes since $PREV_TAG:" > version.diff
-            echo -e "\nCommit History:" >> version.diff
-            git log --pretty=format:"%h - %s (%cr) <%an>" $PREV_TAG..HEAD >> version.diff
-            echo -e "\n\nChanged Files:" >> version.diff
-            git diff --name-status $PREV_TAG..HEAD >> version.diff
-          else
-            echo "Initial Release" > version.diff
-            git log --pretty=format:"%h - %s (%cr) <%an>" >> version.diff
-          fi
-
-      - name: Create Git tag
-        run: |
-          git tag ${{ steps.vars.outputs.tag_name }}
-          git push origin ${{ steps.vars.outputs.tag_name }}
-
-      - name: Generate all_releases.json
-        run: |
-          echo "[" > all_releases.json
-          git tag -l | sort -V | while read -r tag; do
-            if [ ! -z "$tag" ]; then
-              commit_hash=$(git rev-parse $tag)
-              commit_date=$(git log -1 --format=%ai $tag)
-              commit_msg=$(git log -1 --format=%B $tag)
-              if [ "$(head -c 2 all_releases.json)" != "[{" ]; then
-                echo "," >> all_releases.json
-              fi
-              echo "{
-                \"tag\": \"$tag\",
-                \"date\": \"$commit_date\",
-                \"commit\": \"$commit_hash\",
-                \"message\": \"$commit_msg\"
-              }" >> all_releases.json
-            fi
-          done
-          echo "]" >> all_releases.json
-
-      - name: Download APK artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: android-release
-          
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.vars.outputs.tag_name }}
-          name: Release ${{ steps.vars.outputs.tag_name }}
-          files: |
-            project.encrypted.pck
-            version.json
-            version.diff
-            all_releases.json
-            Base-game.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          godot-version: ${{ env.GODOT_VERSION }}
+          working-directory: $WORKING_DIRECTORY
