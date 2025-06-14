@@ -8,6 +8,10 @@
 
 config_version=5
 
+[addons]
+
+source_url="https://github.com/dao1701/android_base/releases/latest/download"
+
 [application]
 
 config/name="Base-game"
