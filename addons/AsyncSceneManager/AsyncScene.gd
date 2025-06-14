@@ -35,7 +35,8 @@ var isCompleted: bool = false
 var typeOperation: LoadingSceneOperation = LoadingSceneOperation.ReplaceImmediate
 # Flag to prevent multiple scene changes (for Replace and Additive operations)
 var changed: bool = false
-var parentNode: Node
+
+var replaceNode: Node
 
 
 # Constructor for the AsyncScene class
@@ -43,10 +44,10 @@ var parentNode: Node
 # Args:
 #     tscnPath (String): Path to the packed scene file
 #     setOperation (LoadingSceneOperation): Type of operation to perform with the scene (default: ReplaceImmediate)
-func _init(tscnPath: String, parent: Node, setOperation: LoadingSceneOperation = LoadingSceneOperation.ReplaceImmediate) -> void:
+func _init(tscnPath: String, replaceNodex: Node, setOperation: LoadingSceneOperation = LoadingSceneOperation.ReplaceImmediate) -> void:
     packedScenePath = tscnPath
     typeOperation = setOperation
-    parentNode = parent
+    self.replaceNode = replaceNodex
 
     # Check if the scene file exists
     if not ResourceLoader.exists(tscnPath):
@@ -75,9 +76,9 @@ func ChangeScene() -> void:
 
     # Perform the appropriate scene change based on the selected operation type
     if typeOperation == LoadingSceneOperation.Replace:
-        _changeImmediate(parentNode)
+        _changeImmediate()
     elif typeOperation == LoadingSceneOperation.Additive:
-        _additiveScene(parentNode)
+        _additiveScene()
 
     # Mark the scene as changed
     changed = true
@@ -91,25 +92,25 @@ func GetStatus() -> String:
 #region Private Methods
 
 # Adds the loaded scene as a child of the root node
-func _additiveScene(parentNode: Node) -> void:
+func _additiveScene() -> void:
     # Instantiate the loaded scene
     currentSceneNode = myRes.instantiate()
 
     # Add the scene to the root node
-    parentNode.add_child.call_deferred(currentSceneNode)
+    replaceNode.get_parent().add_child.call_deferred(currentSceneNode)
 
 
 # Replaces the current scene with the loaded scene
-func _changeImmediate(parentNode: Node) -> void:
+func _changeImmediate() -> void:
     # Get the current scene
-    currentSceneNode = parentNode
+    currentSceneNode = replaceNode
 
     # Queue the current scene for deletion if it exists
     if currentSceneNode:
         currentSceneNode.queue_free()
 
     # Add the loaded scene to the tree
-    _additiveScene(parentNode)
+    _additiveScene()
 
 
 # Unloads the loaded scene and cleans up the AsyncScene instance
@@ -130,7 +131,7 @@ func UnloadScene() -> void:
 # Sets up the timer to check the loading status
 func _setupUpdateSeconds() -> void:
     # Add the timer as a child of the root node
-    get_tree().root.add_child(timer)
+    Engine.get_main_loop().root.add_child(timer)
 
     # Set timer properties
     timer.one_shot = false
@@ -165,9 +166,9 @@ func _check_status() -> void:
 
         # Handle the different operation types
         if typeOperation == LoadingSceneOperation.ReplaceImmediate:
-            _changeImmediate(parentNode)
+            _changeImmediate()
         elif typeOperation == LoadingSceneOperation.AdditiveImmediate:
-            _additiveScene(parentNode)
+            _additiveScene()
 
         # Mark the scene as loaded and stop the timer
         _complete(false)
