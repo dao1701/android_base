@@ -23,7 +23,11 @@ jobs:
           wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
           unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
           chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
-
+      - name: Create export_presets.cfg and inject values
+        run: |
+          cp $WORKING_DIRECTORY/export_presets.android.example $WORKING_DIRECTORY/export_presets.cfg
+          sed -i "s|VERSION_CODE|$VERSION_CODE|g" $WORKING_DIRECTORY/export_presets.cfg
+          sed -i "s|VERSION_NAME|$VERSION_NAME|g" $WORKING_DIRECTORY/export_presets.cfg
       - name: Create PCK file
         run: |
           ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
