@@ -11,3 +11,4 @@ custom_settings.cfg
 debug.keystore
 export_presets.cfg
 android/
+version.json

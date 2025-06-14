@@ -34,14 +34,6 @@ jobs:
           cp $WORKING_DIRECTORY/export_presets.android.example $WORKING_DIRECTORY/export_presets.cfg
           sed -i "s|VERSION_CODE|$VERSION_CODE|g" $WORKING_DIRECTORY/export_presets.cfg
           sed -i "s|VERSION_NAME|$VERSION_NAME|g" $WORKING_DIRECTORY/export_presets.cfg
-      - name: Update project.godot with version
-        run: |
-          echo "" >> $WORKING_DIRECTORY/project.godot
-          echo "[encryption]" >> $WORKING_DIRECTORY/project.godot
-          echo "key=\"${ENCRYPTION_KEY}\"" >> $WORKING_DIRECTORY/project.godot
-          echo "iv=\"${ENCRYPTION_IV}\"" >> $WORKING_DIRECTORY/project.godot
-          echo "Info build"
-          cat $WORKING_DIRECTORY/project.godot
       - name: Create PCK file
         run: |
           ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
@@ -97,6 +89,7 @@ jobs:
             \"buildDate\": \"$(date +'%Y-%m-%d %H:%M:%S')\",
             \"branch\": \"${{ github.ref_name }}\",
             \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
+            \"commit\": \"$(git rev-parse HEAD)\",
             \"previousTag\": \"${PREV_TAG:-initial}\"
           }" > version.json
       - name: Generate version.diff
