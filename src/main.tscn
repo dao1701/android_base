@@ -6,71 +6,14 @@
 [node name="Main" type="Node"]
 script = ExtResource("1_8xqkb")
 
-[node name="Panel3" type="Panel" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -392.0
-offset_top = -312.0
-offset_right = -177.0
-offset_bottom = -143.0
+[node name="EventListener" parent="." instance=ExtResource("2_b15xn")]
+
+[node name="World" type="Node" parent="."]
+
+[node name="Gui" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="Panel5" type="Panel" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 290.0
-offset_top = 88.0
-offset_right = 505.0
-offset_bottom = 257.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Panel7" type="Panel" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -526.0
-offset_top = 117.0
-offset_right = -311.0
-offset_bottom = 286.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Panel4" type="Panel" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 355.0
-offset_top = -266.0
-offset_right = 570.0
-offset_bottom = -97.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="DefaultNode" parent="." instance=ExtResource("2_b15xn")]
-
-[node name="Label" type="Label" parent="."]
-offset_left = 148.0
-offset_top = 320.0
-offset_right = 376.0
-offset_bottom = 829.0
-text = "dfasdfasdf\\ádf\\ádf\\á\\df\\sda\\f
-ádf
-sda
-f
-sad
-f
-ád
-fasd
-fr"
