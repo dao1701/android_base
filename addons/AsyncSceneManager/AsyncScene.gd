@@ -82,7 +82,7 @@ func ChangeScene() -> void:
 
     # Mark the scene as changed
     changed = true
-
+    queue_free()
 
 # Returns the current status of the scene loading as a human-readable string
 func GetStatus() -> String:
