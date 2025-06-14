@@ -1,0 +1,74 @@
+# SPDX-FileCopyrightText: 2023 Simon Dalvai <info@simondalvai.org>
+
+# SPDX-License-Identifier: CC0-1.0
+
+name: Android upload
+
+# Trigger events
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'version'
+  pull_request:
+    branches: [ main ]
+
+env:
+  GODOT_VERSION: 4.4.1
+  ANDROID_KEYSTORE_DEBUG_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+  WORKING_DIRECTORY: .
+
+jobs:
+  # Build job: Creates the PCK file
+  build:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Read version number and version code
+        run: |
+          echo "VERSION_NAME=$(cat version | cut -f1 -d-)" >> $GITHUB_ENV
+          echo "VERSION_CODE=$(cat version | cut -f2 -d-)" >> $GITHUB_ENV
+
+      - name: Create keystores
+        run: |
+          echo $ANDROID_KEYSTORE_DEBUG_BASE64 | base64 --decode > debug.keystore
+
+      - name: Create export_presets.cfg and inject values
+        run: |
+          cp $WORKING_DIRECTORY/export_presets.android.example $WORKING_DIRECTORY/export_presets.cfg
+          sed -i "s|VERSION_CODE|$VERSION_CODE|g" $WORKING_DIRECTORY/export_presets.cfg
+          sed -i "s|VERSION_NAME|$VERSION_NAME|g" $WORKING_DIRECTORY/export_presets.cfg
+
+      - name: Create export_credentials.cfg and inject values
+        run: |
+          mkdir $WORKING_DIRECTORY/.godot/
+          cp $WORKING_DIRECTORY/export_credentials.android.example $WORKING_DIRECTORY/.godot/export_credentials.cfg
+          sed -i "s|KEYSTORE_DEBUG_PATH|$GITHUB_WORKSPACE/debug.keystore|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
+
+      - name: Log environment variables
+        run: |
+          echo "VERSION_NAME: $VERSION_NAME"
+          echo "VERSION_CODE: $VERSION_CODE"
+          echo "GODOT_VERSION: $GODOT_VERSION"
+          cat $WORKING_DIRECTORY/export_presets.cfg
+          cat $WORKING_DIRECTORY/.godot/export_credentials.cfg    
+      - name: Godot Android export
+        uses: dulvui/godot-android-export@v4.0.4
+        with:
+          godot-version: ${{ env.GODOT_VERSION }}
+          working-directory: $WORKING_DIRECTORY
+
+
+      - name: Upload binaries to Github release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./OK.apk
+          asset_name: OK.apk
+          tag: ${{ env.VERSION_NAME }}-${{ env.VERSION_CODE }}
+          overwrite: true
+          body: "OK - version: ${{ env.VERSION_NAME }} code: ${{ env.VERSION_CODE }}"

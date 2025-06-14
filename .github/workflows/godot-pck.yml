@@ -1,74 +1,109 @@
-# SPDX-FileCopyrightText: 2023 Simon Dalvai <info@simondalvai.org>
+name: Godot PCK Build
 
-# SPDX-License-Identifier: CC0-1.0
+env:
+  GODOT_VERSION: 4.4.1-stable
+  ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+  ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
 
-name: Android upload
-
-# Trigger events
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'version'
   pull_request:
     branches: [ main ]
 
-env:
-  GODOT_VERSION: 4.4.1
-  ANDROID_KEYSTORE_DEBUG_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-  WORKING_DIRECTORY: .
-
 jobs:
-  # Build job: Creates the PCK file
   build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Godot
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+          unzip Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+          chmod +x Godot_v${{ env.GODOT_VERSION }}_linux.x86_64
+
+      - name: Create PCK file
+        run: |
+          ./Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 --export-pack Android project.pck . --headless
+      - name: Upload PCK file
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-pck
+          path: project.pck
+  release:
+    needs: build
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Read version number and version code
-        run: |
-          echo "VERSION_NAME=$(cat version | cut -f1 -d-)" >> $GITHUB_ENV
-          echo "VERSION_CODE=$(cat version | cut -f2 -d-)" >> $GITHUB_ENV
-
-      - name: Create keystores
-        run: |
-          echo $ANDROID_KEYSTORE_DEBUG_BASE64 | base64 --decode > debug.keystore
-
-      - name: Create export_presets.cfg and inject values
-        run: |
-          cp $WORKING_DIRECTORY/export_presets.android.example $WORKING_DIRECTORY/export_presets.cfg
-          sed -i "s|VERSION_CODE|$VERSION_CODE|g" $WORKING_DIRECTORY/export_presets.cfg
-          sed -i "s|VERSION_NAME|$VERSION_NAME|g" $WORKING_DIRECTORY/export_presets.cfg
-
-      - name: Create export_credentials.cfg and inject values
-        run: |
-          mkdir $WORKING_DIRECTORY/.godot/
-          cp $WORKING_DIRECTORY/export_credentials.android.example $WORKING_DIRECTORY/.godot/export_credentials.cfg
-          sed -i "s|KEYSTORE_DEBUG_PATH|$GITHUB_WORKSPACE/debug.keystore|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
-
-      - name: Log environment variables
-        run: |
-          echo "VERSION_NAME: $VERSION_NAME"
-          echo "VERSION_CODE: $VERSION_CODE"
-          echo "GODOT_VERSION: $GODOT_VERSION"
-          cat $WORKING_DIRECTORY/export_presets.cfg
-          cat $WORKING_DIRECTORY/.godot/export_credentials.cfg    
-      - name: Godot Android export
-        uses: dulvui/godot-android-export@v4.0.4
+      - name: Download PCK artifact
+        uses: actions/download-artifact@v4
         with:
-          godot-version: ${{ env.GODOT_VERSION }}
-          working-directory: $WORKING_DIRECTORY
+          name: project-pck
 
+      - name: Encrypt PCK
+        run: |
+          KEY="${{ env.ENCRYPTION_KEY }}"
+          IV="${{ env.ENCRYPTION_IV }}"
+          echo "Using encryption key: $KEY"
+          echo "Using IV: $IV"
+          openssl enc -aes-256-cbc -in project.pck -out project.encrypted.pck -K $KEY -iv $IV -nosalt
+      - name: Set up Git
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git fetch --prune --unshallow || git fetch # Fetch full history
+          git fetch --tags # Fetch all tags
 
-      - name: Upload binaries to Github release
-        uses: svenstaro/upload-release-action@v2
+      - name: Get version/tag
+        id: vars
+        run: |
+          TAG_NAME="release-$(date +'%Y%m%d%H%M%S')"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          
+          # Get previous tag safely
+          PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
+          echo "Previous tag: $PREV_TAG"
+          PREV_COMMIT=$(git rev-parse ${PREV_TAG})
+          LATEST_COMMIT=$(git rev-parse HEAD)
+          echo "Previous commit: $PREV_COMMIT"
+          echo "Latest commit: $LATEST_COMMIT"
+          # Create version info as JSON
+          echo "{
+            \"release\": \"$TAG_NAME\",
+            \"buildDate\": \"$(date +'%Y-%m-%d %H:%M:%S')\",
+            \"branch\": \"${{ github.ref_name }}\",
+            \"lastCommitMessage\": \"$(git log -1 --pretty=%B)\",
+            \"previousTag\": \"${PREV_TAG:-initial}\"
+          }" > version.json
+      - name: Generate version.diff
+        run: |
+          PREV_TAG=$(git tag -l | sort -V | tail -n 1 || echo "")
+          echo "Previous tag: $PREV_TAG"
+          PREV_COMMIT=$(git rev-parse ${PREV_TAG})
+          LATEST_COMMIT=$(git rev-parse HEAD)
+          echo "Generating diff between previous and latest commit"
+          echo "Previous commit: ${PREV_COMMIT}"
+          echo "Latest commit: ${LATEST_COMMIT}"
+          git diff --name-status ${PREV_COMMIT}..${LATEST_COMMIT} >> version.diff
+      - name: Create Git tag
+        run: |
+          git tag ${{ steps.vars.outputs.tag_name }}
+          git push origin ${{ steps.vars.outputs.tag_name }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./OK.apk
-          asset_name: OK.apk
-          tag: ${{ env.VERSION_NAME }}-${{ env.VERSION_CODE }}
-          overwrite: true
-          body: "OK - version: ${{ env.VERSION_NAME }} code: ${{ env.VERSION_CODE }}"
+          tag_name: ${{ steps.vars.outputs.tag_name }}
+          name: Release ${{ steps.vars.outputs.tag_name }}
+          files: |
+            project.encrypted.pck
+            version.json
+            version.diff
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
