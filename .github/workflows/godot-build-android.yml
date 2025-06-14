@@ -63,12 +63,8 @@ jobs:
           working-directory: $WORKING_DIRECTORY
 
 
-      - name: Upload binaries to Github release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./OK.apk
-          asset_name: OK.apk
-          tag: ${{ env.VERSION_NAME }}-${{ env.VERSION_CODE }}
-          overwrite: true
-          body: "OK - version: ${{ env.VERSION_NAME }} code: ${{ env.VERSION_CODE }}"
+          name: Game.apk
+          path: OK.apk

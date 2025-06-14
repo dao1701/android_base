@@ -1,0 +1,7 @@
+{
+  "release": "release-20250614041648",
+  "buildDate": "2025-06-14 04:16:48",
+  "branch": "main",
+  "lastCommitMessage": "Add version file to artifact upload in GitHub Actions workflow",
+  "previousTag": "release-20250614040600"
+}
