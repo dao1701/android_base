@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://btsqgpxwy5ay5"]
-
-[ext_resource type="Script" uid="uid://bo7rkyrphm0nw" path="res://src/default_node.gd" id="1_ku61a"]
-
-[node name="DefaultNode" type="Node"]
-script = ExtResource("1_ku61a")
-
-[connection signal="quit_request" from="." to="." method="_on_quit_request"]

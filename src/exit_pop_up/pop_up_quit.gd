@@ -1,4 +1,4 @@
-extends Control
+extends BasePopUp
 
 
 # Called when the node enters the scene tree for the first time.
@@ -15,6 +15,9 @@ func _on_ok_pressed():
     get_tree().quit()
     pass # Replace with function body.
 
+
+func exit():
+    queue_free()
 
 func _on_close_pressed():
     queue_free()

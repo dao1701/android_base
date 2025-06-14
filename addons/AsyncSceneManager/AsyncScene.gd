@@ -97,8 +97,10 @@ func _additiveScene() -> void:
     currentSceneNode = myRes.instantiate()
 
     # Add the scene to the root node
-    replaceNode.get_parent().add_child.call_deferred(currentSceneNode)
-
+    if typeOperation == LoadingSceneOperation.AdditiveImmediate or typeOperation == LoadingSceneOperation.Additive:
+        replaceNode.add_child.call_deferred(currentSceneNode)
+    else:
+        replaceNode.get_parent().add_child.call_deferred(currentSceneNode)
 
 # Replaces the current scene with the loaded scene
 func _changeImmediate() -> void:
