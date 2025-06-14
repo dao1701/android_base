@@ -8,6 +8,8 @@ name: Android upload
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'version'
   pull_request:
     branches: [ main ]
 
