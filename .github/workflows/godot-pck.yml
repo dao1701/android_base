@@ -22,6 +22,12 @@ jobs:
         run: |
           echo "VERSION_NAME=$(cat version | cut -f1 -d-)" >> $GITHUB_ENV
           echo "VERSION_CODE=$(cat version | cut -f2 -d-)" >> $GITHUB_ENV
+
+      - name: Delete drafts
+        uses: hugo19941994/delete-draft-releases@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download Godot
         run: |
           wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
