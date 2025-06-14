@@ -123,6 +123,7 @@ func get_new_version():
     download(url + "/version.json", "user://patch.dat")
     await load_finished
     var string: String = self.load_data("user://patch.dat")
-    var version        = JSON.parse_string(string)["commit"]
-    prints("Remote ", version)
+    var json = JSON.parse_string(string)
+    var version        = json["commit"]
+    prints("Remote Message", json["lastCommitMessage"])
     return version
