@@ -4,6 +4,7 @@ env:
   GODOT_VERSION: 4.4.1-stable
   ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
   ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
+  WORKING_DIRECTORY: .
 
 on:
   push:
