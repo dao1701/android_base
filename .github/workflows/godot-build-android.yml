@@ -69,3 +69,39 @@ jobs:
         with:
           name: Game
           path: OK.apk
+  #Create tag but not release and up apk
+  create_tag_and_upload:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Game
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read version number
+        run: |
+          VERSION_NAME=$(cat version | cut -f1 -d-)
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+
+      - name: Create tag
+        run: |
+          git fetch --tags
+          git tag "v$VERSION_NAME"
+          git push origin "v$VERSION_NAME"
+
+      - name: Upload APK to tag (not as release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Game-v${{ env.VERSION_NAME }}
+          path: OK.apk
