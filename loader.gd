@@ -91,29 +91,23 @@ func decrypt_pck(encrypted_pck_path: String) -> bool:
 
 
 func _ready() -> void:
-    #load new version
-    var version_apk: String = self.load_data("res://version")
-    var url = ProjectSettings.get_setting("addons/source_url")
-    prints("Version apk ", version_apk)
-    var version_apk_path: String = "user://version"
-    await download(url + "/version", version_apk_path)
-    var new_version_apk: String = load_data(version_apk_path)
-    if version_apk != new_version_apk:
-        prints("New version apk available")
-        return
-    else:
-        prints("Up to date Version apk")
     prints(ProjectSettings.get_setting("encryption/key"))
     if OS.has_feature("editor"):
         await get_tree().create_timer(0.1).timeout
         get_tree().change_scene_to_file("res://src/main.tscn")
         return
+    #load new version
+    var version_apk: String = self.load_data("res://version")
+    var new_version_apk: bool         = await check_new_version(version_apk)
+    if new_version_apk: return
+
     var version: String  = self.load_data()
     var path_pck: String = "user://project.encrypted.pck"
     var new_version      = await get_new_version()
     if version != new_version:
         prints("No Patch")
         save(new_version)
+        var url = ProjectSettings.get_setting("addons/source_url")
         download(url + "/project.encrypted.pck", path_pck)
         var code = await load_finished
         if code != OK:
@@ -128,12 +122,25 @@ func _ready() -> void:
     print("OK")
 
 
-func get_new_version():
+func check_new_version(version_apk: String) -> bool:
+    var url = ProjectSettings.get_setting("addons/source_url")
+    prints("Version apk ", version_apk)
+    var version_apk_path: String = "user://version"
+    await download(url + "/version", version_apk_path)
+    var new_version_apk: String = load_data(version_apk_path)
+    if version_apk != new_version_apk:
+        prints("New version apk available")
+        return true
+    else:
+        prints("Up to date Version apk")
+        return false
+
+func get_new_version() -> String:
     var url = ProjectSettings.get_setting("addons/source_url")
     download(url + "/version.json", "user://patch.dat")
     await load_finished
-    var string: String = self.load_data("user://patch.dat")
-    var json           = JSON.parse_string(string)
-    var version        = json["commit"]
+    var string: String  = self.load_data("user://patch.dat")
+    var json            = JSON.parse_string(string)
+    var version: String = json["commit"]
     prints("Remote Message", json["lastCommitMessage"])
     return version
