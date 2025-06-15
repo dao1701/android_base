@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://codxg00jci7fu"]
+[gd_scene load_steps=5 format=3 uid="uid://codxg00jci7fu"]
 
 [ext_resource type="Script" uid="uid://djoec0vw2a2mv" path="res://src/main.gd" id="1_8xqkb"]
 [ext_resource type="PackedScene" uid="uid://btsqgpxwy5ay5" path="res://src/event_listener.tscn" id="2_b15xn"]
+[ext_resource type="PackedScene" uid="uid://b28lyusfjr3yd" path="res://src/world/world.tscn" id="3_3cfgd"]
 [ext_resource type="Script" uid="uid://b1ci8wlcaxl2y" path="res://src/gui/gui.gd" id="3_5q4o7"]
 
 [node name="Main" type="Node"]
@@ -9,7 +10,7 @@ script = ExtResource("1_8xqkb")
 
 [node name="EventListener" parent="." instance=ExtResource("2_b15xn")]
 
-[node name="World" type="Node" parent="."]
+[node name="World" parent="." instance=ExtResource("3_3cfgd")]
 
 [node name="Gui" type="Control" parent="."]
 layout_mode = 3

@@ -4,10 +4,8 @@ signal quit_request
 var pop_up
 var wait_release: Dictionary = {}
 func _unhandled_key_input(event):
+    prints(event)
     if Input.is_action_just_released("ui_cancel"):
-        wait_release["ui_cancel"] = false
-    if Input.is_action_pressed("ui_cancel") and wait_release.get("ui_cancel", false) == false:
-        wait_release["ui_cancel"] = true
         _on_Back_pressed()
 
 

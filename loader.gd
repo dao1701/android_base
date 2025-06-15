@@ -92,6 +92,17 @@ func decrypt_pck(encrypted_pck_path: String) -> bool:
 
 func _ready() -> void:
     #load new version
+    var version_apk: String = self.load_data("res://version")
+    var url = ProjectSettings.get_setting("addons/source_url")
+    prints("Version apk ", version_apk)
+    var version_apk_path: String = "user://version"
+    await download(url + "/version", version_apk_path)
+    var new_version_apk: String = load_data(version_apk_path)
+    if version_apk != new_version_apk:
+        prints("New version apk available")
+        return
+    else:
+        prints("Up to date Version apk")
     prints(ProjectSettings.get_setting("encryption/key"))
     if OS.has_feature("editor"):
         await get_tree().create_timer(0.1).timeout
@@ -103,7 +114,6 @@ func _ready() -> void:
     if version != new_version:
         prints("No Patch")
         save(new_version)
-        var url = ProjectSettings.get_setting("addons/source_url")
         download(url + "/project.encrypted.pck", path_pck)
         var code = await load_finished
         if code != OK:
@@ -112,7 +122,7 @@ func _ready() -> void:
     else:
         prints("Up to date")
     var check: bool = decrypt_pck(path_pck)
-    prints("Load PCK ",check)
+    prints("Load PCK ", check)
     get_tree().change_scene_to_file("res://src/main.tscn")
 
     print("OK")
@@ -123,7 +133,7 @@ func get_new_version():
     download(url + "/version.json", "user://patch.dat")
     await load_finished
     var string: String = self.load_data("user://patch.dat")
-    var json = JSON.parse_string(string)
+    var json           = JSON.parse_string(string)
     var version        = json["commit"]
     prints("Remote Message", json["lastCommitMessage"])
     return version
