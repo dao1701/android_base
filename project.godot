@@ -21,6 +21,10 @@ config/quit_on_go_back=false
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+AutoLoad="*res://src/auto_load.tscn"
+
 [debug]
 
 gdscript/warnings/unused_variable=0
