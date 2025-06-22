@@ -97,8 +97,8 @@ func _ready() -> void:
         get_tree().change_scene_to_file("res://src/main.tscn")
         return
     #load new version
-    var version_apk: String = self.load_data("res://version")
-    var new_version_apk: bool         = await check_new_version(version_apk)
+    var version_apk: String   = self.load_data("res://version")
+    var new_version_apk: bool = await check_new_version(version_apk)
     if new_version_apk: return
 
     var version: String  = self.load_data()
@@ -134,6 +134,7 @@ func check_new_version(version_apk: String) -> bool:
     else:
         prints("Up to date Version apk")
         return false
+
 
 func get_new_version() -> String:
     var url = ProjectSettings.get_setting("addons/source_url")

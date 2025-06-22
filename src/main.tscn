@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://codxg00jci7fu"]
+[gd_scene load_steps=6 format=3 uid="uid://codxg00jci7fu"]
 
 [ext_resource type="Script" uid="uid://djoec0vw2a2mv" path="res://src/main.gd" id="1_8xqkb"]
 [ext_resource type="PackedScene" uid="uid://btsqgpxwy5ay5" path="res://src/event_listener.tscn" id="2_b15xn"]
 [ext_resource type="PackedScene" uid="uid://b28lyusfjr3yd" path="res://src/world/world.tscn" id="3_3cfgd"]
 [ext_resource type="Script" uid="uid://b1ci8wlcaxl2y" path="res://src/gui/gui.gd" id="3_5q4o7"]
+[ext_resource type="PackedScene" uid="uid://dmr0fcamx7t56" path="res://addons/virtual_joystick/virtual_joystick_scene.tscn" id="5_fyndt"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_8xqkb")
@@ -12,6 +13,12 @@ script = ExtResource("1_8xqkb")
 
 [node name="World" parent="." instance=ExtResource("3_3cfgd")]
 
+[node name="Camera3D" parent="World" index="2"]
+transform = Transform3D(0.891007, 0, 0.453991, 0, 1, 0, -0.453991, 0, 0.891007, 0, 2.23973, 3.62157)
+
+[node name="MeshInstance3D2" parent="World/Player" index="2"]
+transform = Transform3D(0.00153595, 0, 0.999999, 0, 1, 0, -0.999999, 0, 0.00153595, 0.595529, 0.0375321, -0.00191981)
+
 [node name="Gui" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -19,6 +26,27 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Control" type="Control" parent="Gui"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Virtual Joystick" parent="Gui" instance=ExtResource("5_fyndt")]
+layout_mode = 1
+
+[node name="PopUp" type="Control" parent="Gui"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("3_5q4o7")
 
-[connection signal="quit_request" from="EventListener" to="Gui" method="_on_event_listener_quit_request"]
+[connection signal="quit_request" from="EventListener" to="Gui/PopUp" method="_on_event_listener_quit_request"]
+
+[editable path="World"]
