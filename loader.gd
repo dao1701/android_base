@@ -3,7 +3,7 @@ extends Node
 signal load_finished(result: int)
 
 
-# Called when the node enters the scene tree for the first time.
+## Called when the node enters the scene tree for the first time.
 func download(link, path):
     prints("Download ", link)
     var http = HTTPRequest.new()
