@@ -91,7 +91,9 @@ func decrypt_pck(encrypted_pck_path: String) -> bool:
 
 
 func _ready() -> void:
-    prints(ProjectSettings.get_setting("encryption/key"))
+    prints("key",ProjectSettings.get_setting("encryption/key"))
+    prints("iv",ProjectSettings.get_setting("encryption/iv"))
+    
     if OS.has_feature("editor"):
         await get_tree().create_timer(0.1).timeout
         get_tree().change_scene_to_file("res://src/main.tscn")
@@ -129,9 +131,9 @@ func check_new_version(version_apk: String) -> bool:
     prints("check_new_version Version apk ", version_apk)
     var version_apk_path: String = "user://version"
     await download(url + "/version", version_apk_path)
-    var new_version_apk: String = load_data(version_apk_path).split(".")[0]
+    var new_version_apk: String = load_data(version_apk_path)
     prints("Version APK",version_apk,new_version_apk)
-    if version_apk.split(".")[0] != new_version_apk:
+    if version_apk.split(".")[0] != new_version_apk.split(".")[0]:
         prints("New version apk ")
         return true
     else:
