@@ -92,10 +92,10 @@ func decrypt_pck(encrypted_pck_path: String) -> bool:
 
 func _ready() -> void:
     prints(ProjectSettings.get_setting("encryption/key"))
-    if OS.has_feature("editor"):
-        await get_tree().create_timer(0.1).timeout
-        get_tree().change_scene_to_file("res://src/main.tscn")
-        return
+    #if OS.has_feature("editor"):
+        #await get_tree().create_timer(0.1).timeout
+        #get_tree().change_scene_to_file("res://src/main.tscn")
+        #return
     #load new version
     var version_apk: String   = self.load_data("res://version")
     var new_version_apk: bool = await check_new_version(version_apk)
