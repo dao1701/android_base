@@ -97,7 +97,7 @@ func _ready() -> void:
         get_tree().change_scene_to_file("res://src/main.tscn")
         return
     #load new version
-    var version_apk: String   = self.load_data("res://version")
+    var version_apk: String   = self.load_data("res://version").split(".")[0]
     var new_version_apk: bool = await check_new_version(version_apk)
     if new_version_apk: return
 
@@ -128,9 +128,10 @@ func check_new_version(version_apk: String) -> bool:
     prints("Version apk ", version_apk)
     var version_apk_path: String = "user://version"
     await download(url + "/version", version_apk_path)
-    var new_version_apk: String = load_data(version_apk_path)
+    var new_version_apk: String = load_data(version_apk_path).split(".")[0]
+    prints("Version APK",version_apk,new_version_apk)
     if version_apk != new_version_apk:
-        prints("New version apk available")
+        prints("New version apk ")
         return true
     else:
         prints("Up to date Version apk")
