@@ -111,7 +111,7 @@ jobs:
             echo "Tag v$VERSION_NAME does not exist, creating"
           fi
           git tag "v$VERSION_NAME"
-          git push origin "v$VERSION_NAME"
+          git push origin "v$VERSION_NAME" -f
 
       - name: Upload APK to tag (not as release)
         uses: actions/upload-artifact@v4
