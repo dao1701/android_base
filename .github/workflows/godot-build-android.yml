@@ -14,7 +14,7 @@ on:
     branches: [ main ]
 
 env:
-  GODOT_VERSION: 4.4.1
+  GODOT_VERSION: 4.4.1-stable
   ANDROID_KEYSTORE_DEBUG_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
   WORKING_DIRECTORY: .
   VERSION_NAME: ''
