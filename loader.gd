@@ -112,6 +112,7 @@ func _ready() -> void:
         var code = await load_finished
         if code != OK:
             prints("Download Failed")
+            get_tree().change_scene_to_file("res://src/main.tscn")
             return
     else:
         prints("Up to date")

@@ -47,6 +47,12 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_5q4o7")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = 506.0
+offset_top = 80.0
+offset_right = 708.0
+offset_bottom = 188.0
+
 [connection signal="quit_request" from="EventListener" to="Gui/PopUp" method="_on_event_listener_quit_request"]
 
 [editable path="World"]

@@ -10,7 +10,7 @@ config_version=5
 
 [addons]
 
-source_url="https://github.com/dao1701/android_base/releases/latest/download"
+source_url="https://sourceforge.net/projects/android-base/files/latest"
 
 [application]
 
