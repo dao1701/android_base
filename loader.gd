@@ -97,7 +97,8 @@ func _ready() -> void:
         get_tree().change_scene_to_file("res://src/main.tscn")
         return
     #load new version
-    var version_apk: String   = self.load_data("res://version").split(".")[0]
+    var version_apk: String   = ProjectSettings.get_setting("encryption/version")
+    prints("Version apk",version_apk)
     var new_version_apk: bool = await check_new_version(version_apk)
     if new_version_apk: return
 
