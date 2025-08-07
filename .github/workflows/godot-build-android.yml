@@ -57,6 +57,7 @@ jobs:
           echo "[encryption]" >> $WORKING_DIRECTORY/project.godot
           echo "key=\"${ENCRYPTION_KEY}\"" >> $WORKING_DIRECTORY/project.godot
           echo "iv=\"${ENCRYPTION_IV}\"" >> $WORKING_DIRECTORY/project.godot
+          echo "version=$VERSION_CODE"
       - name: Create export_credentials.cfg and inject values
         run: |
           mkdir $WORKING_DIRECTORY/.godot/
