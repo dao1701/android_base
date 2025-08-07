@@ -11,6 +11,7 @@ on:
     paths:
       - 'version'
       - '.github/workflows/godot-build-android.yml'
+      - 'export_presets.android.example'
   pull_request:
     branches: [ main ]
 
