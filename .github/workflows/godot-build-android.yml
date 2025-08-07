@@ -2,14 +2,16 @@
 
 # SPDX-License-Identifier: CC0-1.0
 
+# Concurrency control
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
+
 name: Android build apk
 
 # Trigger events
 on:
   push:
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event_name }}
-      cancel-in-progress: true
     branches: [ main ]
     paths:
       - 'version'
