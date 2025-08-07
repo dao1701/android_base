@@ -126,7 +126,7 @@ func _ready() -> void:
 
 func check_new_version(version_apk: String) -> bool:
     var url = ProjectSettings.get_setting("addons/source_url")
-    prints("Version apk ", version_apk)
+    prints("check_new_version Version apk ", version_apk)
     var version_apk_path: String = "user://version"
     await download(url + "/version", version_apk_path)
     var new_version_apk: String = load_data(version_apk_path).split(".")[0]
