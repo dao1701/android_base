@@ -106,7 +106,7 @@ jobs:
           git fetch --tags
           if git rev-parse --quiet --verify "v$VERSION_NAME" > /dev/null; then
             echo "Tag v$VERSION_NAME already exists, overwriting"
-            git tag -f "v$VERSION_NAME"
+            git tag --delete "v$VERSION_NAME"
           else
             echo "Tag v$VERSION_NAME does not exist, creating"
           fi
