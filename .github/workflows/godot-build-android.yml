@@ -58,70 +58,73 @@ jobs:
           echo "key=\"${ENCRYPTION_KEY}\"" >> $WORKING_DIRECTORY/project.godot
           echo "iv=\"${ENCRYPTION_IV}\"" >> $WORKING_DIRECTORY/project.godot
           echo "version=\"${VERSION_NAME}\"" >> $WORKING_DIRECTORY/project.godot
-      - name: Create export_credentials.cfg and inject values
+      - name: Debug
         run: |
-          mkdir $WORKING_DIRECTORY/.godot/
-          cp $WORKING_DIRECTORY/export_credentials.android.example $WORKING_DIRECTORY/.godot/export_credentials.cfg
-          sed -i "s|KEYSTORE_DEBUG_PATH|$GITHUB_WORKSPACE/debug.keystore|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
+          cat ./project.godot
+  #     - name: Create export_credentials.cfg and inject values
+  #       run: |
+  #         mkdir $WORKING_DIRECTORY/.godot/
+  #         cp $WORKING_DIRECTORY/export_credentials.android.example $WORKING_DIRECTORY/.godot/export_credentials.cfg
+  #         sed -i "s|KEYSTORE_DEBUG_PATH|$GITHUB_WORKSPACE/debug.keystore|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
 
-      - name: Log environment variables
-        run: |
-          echo "VERSION_NAME: $VERSION_NAME"
-          echo "VERSION_CODE: $VERSION_CODE"
-          echo "GODOT_VERSION: $GODOT_VERSION"
-          cat $WORKING_DIRECTORY/export_presets.cfg
-          cat $WORKING_DIRECTORY/.godot/export_credentials.cfg    
-      - name: Godot Android export
-        uses: dulvui/godot-android-export@v4.0.4
-        with:
-          godot-version: ${{ env.GODOT_VERSION }}
-          working-directory: $WORKING_DIRECTORY
+  #     - name: Log environment variables
+  #       run: |
+  #         echo "VERSION_NAME: $VERSION_NAME"
+  #         echo "VERSION_CODE: $VERSION_CODE"
+  #         echo "GODOT_VERSION: $GODOT_VERSION"
+  #         cat $WORKING_DIRECTORY/export_presets.cfg
+  #         cat $WORKING_DIRECTORY/.godot/export_credentials.cfg    
+  #     - name: Godot Android export
+  #       uses: dulvui/godot-android-export@v4.0.4
+  #       with:
+  #         godot-version: ${{ env.GODOT_VERSION }}
+  #         working-directory: $WORKING_DIRECTORY
 
 
-      - name: Upload APK as workflow artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Game
-          path: OK.apk
-  #Create tag but not release and up apk
-  create_tag_and_upload:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+  #     - name: Upload APK as workflow artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Game
+  #         path: OK.apk
+  # #Create tag but not release and up apk
+  # create_tag_and_upload:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Checkout source code
+  #       uses: actions/checkout@v3
 
-      - name: Download APK artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Game
+  #     - name: Download APK artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: Game
 
-      - name: Set up Git user
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+  #     - name: Set up Git user
+  #       run: |
+  #         git config --global user.name "github-actions[bot]"
+  #         git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Read version number
-        run: |
-          VERSION_NAME=$(cat version | cut -f1 -d-)
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+  #     - name: Read version number
+  #       run: |
+  #         VERSION_NAME=$(cat version | cut -f1 -d-)
+  #         echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
 
-      - name: Create tag
-        run: |
-          git fetch --tags
-          if git rev-parse --quiet --verify "v$VERSION_NAME" > /dev/null; then
-            echo "Tag v$VERSION_NAME already exists, overwriting"
-            git tag --delete "v$VERSION_NAME"
-          else
-            echo "Tag v$VERSION_NAME does not exist, creating"
-          fi
-          git tag "v$VERSION_NAME"
-          git push origin "v$VERSION_NAME" -f
+  #     - name: Create tag
+  #       run: |
+  #         git fetch --tags
+  #         if git rev-parse --quiet --verify "v$VERSION_NAME" > /dev/null; then
+  #           echo "Tag v$VERSION_NAME already exists, overwriting"
+  #           git tag --delete "v$VERSION_NAME"
+  #         else
+  #           echo "Tag v$VERSION_NAME does not exist, creating"
+  #         fi
+  #         git tag "v$VERSION_NAME"
+  #         git push origin "v$VERSION_NAME" -f
 
-      - name: Upload APK to tag (not as release)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Game-v${{ env.VERSION_NAME }}
-          path: OK.apk
+  #     - name: Upload APK to tag (not as release)
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Game-v${{ env.VERSION_NAME }}
+  #         path: OK.apk
