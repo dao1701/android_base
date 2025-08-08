@@ -25,6 +25,8 @@ env:
   ANDROID_KEYSTORE_DEBUG_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
   ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
   ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
+  ANDROID_KEYSTORE_DEBUG_ALIAS: ${{ secrets.KEY_ALIAS }}
+  ANDROID_KEYSTORE_DEBUG_PASSWORD: ${{ secrets.KEY_PASSWORD }}
   WORKING_DIRECTORY: .
   VERSION_NAME: ''
   VERSION_CODE: ''
@@ -72,7 +74,8 @@ jobs:
           mkdir $WORKING_DIRECTORY/.godot/
           cp $WORKING_DIRECTORY/export_credentials.android.example $WORKING_DIRECTORY/.godot/export_credentials.cfg
           sed -i "s|KEYSTORE_DEBUG_PATH|$GITHUB_WORKSPACE/debug.keystore|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
-
+          sed -i "s|KEYSTORE_DEBUG_ALIAS|$ANDROID_KEYSTORE_DEBUG_ALIAS|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
+          sed -i "s|KEYSTORE_DEBUG_PASSWORD|$ANDROID_KEYSTORE_DEBUG_PASSWORD|g" $WORKING_DIRECTORY/.godot/export_credentials.cfg
       - name: Log environment variables
         run: |
           echo "VERSION_NAME: $VERSION_NAME"
