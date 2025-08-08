@@ -51,9 +51,12 @@ jobs:
       - name: Create export_presets.cfg and inject values
         run: |
           cp $WORKING_DIRECTORY/export_presets.android.example $WORKING_DIRECTORY/export_presets.cfg
-          echo "s|VERSION_CODE|$VERSION_CODE|g"
+          echo Before
+          cat $WORKING_DIRECTORY/export_presets.cfg
           sed -i "s|VERSION_CODE|$VERSION_CODE|g" $WORKING_DIRECTORY/export_presets.cfg
           sed -i "s|VERSION_NAME|$VERSION_NAME|g" $WORKING_DIRECTORY/export_presets.cfg
+          echo After
+          cat $WORKING_DIRECTORY/export_presets.cfg
       - name: Update project.godot with version
         env:
           ENCRYPTION_CONFIG: |
